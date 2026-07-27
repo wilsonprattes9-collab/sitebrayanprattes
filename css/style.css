@@ -1,0 +1,1583 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* substitui um style="position:absolute" que existia inline no SVG dos
+   filtros de agua -- fora do HTML pra nao precisar de 'unsafe-inline'
+   no style-src do CSP. */
+.svg-defs {
+  position: absolute;
+}
+
+:root {
+  --black: #000000;
+  --white: #ffffff;
+  --surface: #0b0b0b;
+  --surface-2: #0a0a0a;
+  --graphite: #0d0d0d;
+  --border-1: rgba(255, 255, 255, .08);
+  --border-2: rgba(255, 255, 255, .09);
+  --border-3: rgba(255, 255, 255, .10);
+  --border-4: rgba(255, 255, 255, .12);
+  --border-hover: rgba(255, 255, 255, .28);
+  --text-50: rgba(255, 255, 255, .5);
+  --text-55: rgba(255, 255, 255, .55);
+  --text-60: rgba(255, 255, 255, .6);
+  --text-62: rgba(255, 255, 255, .62);
+  --text-66: rgba(255, 255, 255, .66);
+  --text-68: rgba(255, 255, 255, .68);
+  --text-72: rgba(255, 255, 255, .72);
+  --text-82: rgba(255, 255, 255, .82);
+  --hover-white: #d8d8d8;
+  --gray-ref: #8a8a8a;
+  --radius-chip: 12px;
+  --radius-img: 16px;
+  --radius-card: 20px;
+  --radius-contact: 28px;
+  --radius-pill: 100px;
+  --container-max: 1240px;
+  --container-pad: 28px;
+  --font-display: 'Archivo', Arial, sans-serif;
+  --font-body: 'Space Grotesk', Arial, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html, body {
+  width: 100%;
+  background: #000;
+  color: var(--white);
+  font-family: var(--font-body);
+}
+
+section[id] {
+  scroll-margin-top: 84px;
+}
+
+.container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 var(--container-pad);
+}
+
+/* ---------- RASTRO DE SCROLL (servicos -> depoimentos) ---------- */
+/*
+  uma "cobra" branca que desenha (e desdesenha) conforme o scroll, do
+  topo de servicos ate' o topo de depoimentos. .trail-zone envolve essas
+  secoes e da' o container posicional; .trail-track reusa a classe
+  .container pra alinhar com a mesma margem/coluna do conteudo. O path
+  (js/trail.js) comeca perto do canto esquerdo e invade o meio do texto
+  e volta, entao PRECISA ficar atras das letras/cards -- por isso as
+  secoes dentro da zona ganham seu proprio stacking context (z-index
+  acima do trail-track). A animacao (stroke-dashoffset) e' 100% ligada
+  ao progresso do scroll (GSAP ScrollTrigger scrub), entao sobe/desce
+  junto com o usuario.
+*/
+.trail-zone {
+  position: relative;
+}
+
+.trail-zone > section {
+  position: relative;
+  z-index: 1;
+}
+
+.trail-track {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* width/height reais vem via JS (js/trail.js), responsivos ao espaco
+   disponivel -- so' o suficiente aqui pra nao deixar um tamanho
+   default gigante "piscar" antes do JS calcular. */
+.scroll-trail {
+  position: absolute;
+  left: -24px;
+  top: 0;
+  height: 100%;
+  overflow: visible;
+}
+
+.scroll-trail path {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 5px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 7px rgba(255, 255, 255, .4));
+}
+
+@media (max-width: 760px) {
+  .scroll-trail {
+    left: -10px;
+  }
+}
+
+/* ---------- BARRA DE PROGRESSO DO SCROLL ---------- */
+
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  z-index: 900;
+  background: rgba(255, 255, 255, .06);
+  pointer-events: none;
+}
+
+.scroll-progress span {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, rgba(255, 255, 255, .5), #fff);
+  box-shadow: 0 0 10px rgba(255, 255, 255, .6);
+}
+
+/* ---------- CORTINA DE TRANSICAO ENTRE SECOES ---------- */
+/*
+  cada secao principal tem um painel preto (mesma cor do fundo da
+  pagina) cobrindo ela por cima -- js/animations.js anima o clip-path
+  desse painel (inset no topo crescendo ate' 100%) ligado ao scroll
+  (scrub), revelando a secao de cima pra baixo bem no momento em que
+  ela entra na tela. clip-path (em vez de transform/overflow) pra nao
+  precisar de overflow:hidden na secao, o que quebraria o
+  position:sticky da previa do portfolio.
+*/
+.section-curtain {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  z-index: 5;
+  pointer-events: none;
+  clip-path: inset(0 0 0 0);
+}
+
+/* ---------- GRAIN OVERLAY ---------- */
+
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  pointer-events: none;
+  opacity: .05;
+  mix-blend-mode: screen;
+}
+
+/* ---------- TYPO / SECTION HEADERS ---------- */
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  letter-spacing: .4em;
+  text-transform: uppercase;
+  color: var(--text-55);
+}
+
+.eyebrow::before {
+  content: '';
+  width: 34px;
+  height: 1px;
+  background: var(--text-55);
+  display: inline-block;
+}
+
+.section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 48px;
+}
+
+.section-head h2 {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(32px, 5vw, 56px);
+  letter-spacing: -.02em;
+  margin-top: 14px;
+}
+
+.section-head p {
+  max-width: 420px;
+  font-size: 15px;
+  color: var(--text-62);
+  text-align: right;
+}
+
+/* titulos de secao: cada palavra fica numa mascara (overflow hidden) e
+   entra deslizando de baixo pra cima (GSAP, js/animations.js) conforme
+   o titulo entra na tela -- markup das palavras e' montado via JS. */
+.word-mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+}
+
+.word-inner {
+  display: inline-block;
+  will-change: transform;
+}
+
+/* ---------- BUTTONS ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: var(--radius-pill);
+  padding: 11px 20px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 14.5px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background .2s ease, border-color .2s ease, color .2s ease;
+  border: 1px solid transparent;
+}
+
+.btn--primary {
+  background: var(--white);
+  color: #000;
+}
+
+.btn--primary:hover {
+  background: var(--hover-white);
+}
+
+.btn--outline {
+  background: transparent;
+  color: var(--white);
+  border-color: rgba(255, 255, 255, .2);
+}
+
+.btn--outline:hover {
+  border-color: var(--white);
+}
+
+/* ---------- SCROLL REVEAL ---------- */
+
+/* estado inicial (pre-JS) -- a animacao de entrada de verdade (opacity,
+   y, blur, stagger) e' feita via GSAP ScrollTrigger em js/main.js; isso
+   aqui e' so' o "flash" inicial pra nao aparecer tudo destapado antes do
+   JS rodar. */
+.reveal-item {
+  opacity: 0;
+}
+
+/* ---------- INTRO (efeito "cobra" no carregamento) ---------- */
+
+body.intro-active {
+  overflow: hidden;
+}
+
+.intro {
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* responsivo (min(486px, 50vmin)) em vez do width/height fixo (486) do
+   atributo HTML -- em telas estreitas a logo da intro ficaria maior que
+   a propria tela. js/script.js usa a MESMA formula (50% do menor lado
+   da viewport) pra achar o SCALE_START da hero, garantindo que o
+   "buraco" da hero comece exatamente do mesmo tamanho que essa logo
+   termina, sem salto visivel na troca intro -> hero. */
+.intro__logo {
+  width: min(486px, 50vmin);
+  height: min(486px, 50vmin);
+}
+
+.intro__stroke {
+  fill: none;
+  stroke: #000;
+  stroke-width: 7;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.intro__fill {
+  fill: #000;
+  opacity: 0;
+}
+
+/* ---------- NAV ---------- */
+
+/*
+  sem barra/fundo -- so' o texto flutuando sobre o conteudo. mix-blend-mode:
+  difference faz o texto/icone ficarem sempre legiveis, tanto sobre o fundo
+  branco do repouso quanto sobre o preto depois do scroll, sem precisar
+  trocar cor via JS (branco em fundo branco = preto; branco em preto = branco).
+*/
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+}
+
+.nav__word,
+.nav__logo,
+.nav__links a {
+  mix-blend-mode: difference;
+}
+
+.nav__inner {
+  width: 100%;
+  max-width: var(--container-max);
+  padding: 0 var(--container-pad);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav__brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+
+.nav__logo img {
+  width: 30px;
+  height: 30px;
+  /* url(#waterRipple) = deslocamento tipo "agua" no hover (ver
+     main.js) -- com scale 0 (padrao) nao distorce nada. */
+  filter: url(#waterRipple) brightness(0) invert(1);
+}
+
+.nav__word {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: .28em;
+  color: var(--white);
+}
+
+.nav__links {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  list-style: none;
+}
+
+.nav__links a {
+  color: var(--text-72);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color .2s ease;
+}
+
+.nav__links a:hover {
+  color: var(--white);
+}
+
+.nav__desktop-only {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.nav__burger {
+  display: none;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255, 255, 255, .2);
+  border-radius: 12px;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+}
+
+/*
+  span = barra do meio (absoluta relativa ao botao). as barras de cima/baixo
+  sao ::before/::after do PROPRIO BOTAO (nao do span) -- se ficassem no span
+  (que tambem e' position:absolute) o containing block delas vira o span,
+  que so tem ~18px de largura, e o left/right:12px zera a largura.
+*/
+.nav__burger {
+  --bar-top: 15px;
+  --bar-mid: 21px;
+  --bar-bottom: 27px;
+}
+
+.nav__burger span,
+.nav__burger::before,
+.nav__burger::after {
+  content: '';
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  height: 2px;
+  background: #fff;
+  transition: transform .25s ease, opacity .25s ease, top .25s ease;
+}
+
+.nav__burger::before {
+  top: var(--bar-top);
+}
+
+.nav__burger span {
+  top: var(--bar-mid);
+}
+
+.nav__burger::after {
+  top: var(--bar-bottom);
+}
+
+.nav__burger.is-open span {
+  opacity: 0;
+}
+
+.nav__burger.is-open::before {
+  top: var(--bar-mid);
+  transform: rotate(45deg);
+}
+
+.nav__burger.is-open::after {
+  top: var(--bar-mid);
+  transform: rotate(-45deg);
+}
+
+.nav__mobile-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .97);
+  z-index: 400;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s ease;
+}
+
+.nav__mobile-overlay.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.nav__mobile-overlay a {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 34px;
+  color: var(--white);
+  text-decoration: none;
+}
+
+@media (max-width: 860px) {
+  .nav__desktop-only {
+    display: none;
+  }
+
+  .nav__burger {
+    display: block;
+  }
+}
+
+/* ---------- HERO ---------- */
+
+.hero {
+  position: relative;
+  height: 300vh; /* espaco de scroll para "esticar" a animacao */
+  background: #000;
+}
+
+/*
+  fundo PRETO -- e' o fundo de verdade do site (mesmo tom do resto da
+  pagina). O branco de repouso (igual ao fim da intro) vem inteiramente
+  do .hero__mask-overlay por cima, que cobre a tela toda menos o buraco
+  da logo -- e' por isso que o buraco parece "a logo preta": ele so' esta'
+  revelando esse preto de verdade por baixo, no formato do simbolo.
+*/
+.hero__pin {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background: #000;
+}
+
+.hero__stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/*
+  o site DE VERDADE mora em .hero__real, em tamanho e posicao finais,
+  parado o tempo todo -- NUNCA cresce/aparece do nada. A logo funciona
+  como uma mascara com um "buraco" no formato do simbolo por cima de
+  tudo (.hero__mask-overlay): um clip-path evenodd (retangulo enorme
+  MENOS as 4 partes do simbolo) recorta um "buraco" nesse overlay, que
+  cresce conforme o scroll (js/script.js so' anima o `scale`, technique
+  identica a' usada antes no .hero__mask). Fora do buraco, o overlay
+  escurece (branco -> preto) puxado pelo scroll; dentro dele, aparece o
+  fundo preto de verdade da hero (.hero__pin) com o conteudo real por
+  cima -- por isso "parece a logo" em repouso, sem precisar de nenhum
+  conteudo especifico ali.
+*/
+.hero__real {
+  position: absolute;
+  left: var(--container-pad);
+  top: 50%;
+  transform: translateY(-50%);
+  width: min(600px, calc(100vw - 2 * var(--container-pad)));
+  z-index: 1;
+}
+
+.hero__real .eyebrow {
+  white-space: nowrap;
+}
+
+.hero__real h1 {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(40px, 5.2vw, 68px);
+  line-height: .98;
+  letter-spacing: -.02em;
+  margin-top: 18px;
+}
+
+.hero__desc {
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--text-68);
+  margin-top: 20px;
+  max-width: 92%;
+}
+
+.hero__ctas {
+  display: flex;
+  gap: 14px;
+  margin-top: 32px;
+}
+
+/* logo de marca d'agua no canto superior direito do bloco de texto --
+   fica atras do texto real, opacidade bem baixa (so' uma textura). */
+.hero__watermark {
+  position: absolute;
+  top: -70px;
+  right: -60px;
+  width: clamp(220px, 22vw, 380px);
+  height: auto;
+  fill: #fff;
+  opacity: .06;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/*
+  fica exatamente do tamanho da viewport (inset:0, sem transform nenhum)
+  -- o Chromium tem um bug de renderizacao real com clip-path quando o
+  elemento e' escalado (via CSS transform) pra tamanhos muito grandes
+  (testado: uma caixa de 3000px escalada 9x = 27000px corta o clip-path
+  errado, revelando so' parte do buraco). Pra evitar isso, o buraco NAO
+  e' mais feito escalando uma caixa gigante: js/script.js recalcula a
+  STRING do clip-path a cada frame do scroll, com as coordenadas do
+  buraco (e so' elas) crescendo -- o retangulo externo fica sempre do
+  tamanho exato da tela, nunca precisa ser gigante.
+*/
+.hero__mask-overlay {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* desenho solido da logo, sincronizado com o buraco (js/script.js) --
+   existe so' pra poder aplicar o filtro de agua no hover (um clip-path
+   nao pode ser destorcido por filter, mas um preenchimento normal
+   pode). fica por cima do overlay (z-index maior). */
+.hero__logo-visual {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
+  pointer-events: none;
+  overflow: visible;
+}
+
+/* copia sempre-destorcida da logo -- so' aparece onde a mask-image
+   (radial-gradient, opaco no centro/transparente na borda) esta'
+   opaca. --ripple-x/--ripple-y sao' as coordenadas do cursor (js/
+   script.js atualiza com suavizacao via GSAP em mousemove); comecam
+   bem fora da tela (-9999px) pra nao aparecer nada antes do primeiro
+   movimento do mouse. */
+.hero__logo-ripple {
+  --ripple-x: -9999px;
+  --ripple-y: -9999px;
+}
+
+#heroLogoGroupRipple {
+  filter: url(#waterRippleHero);
+}
+
+.hero__logo-ripple {
+  mask-image: radial-gradient(circle 180px at var(--ripple-x) var(--ripple-y), #fff 0%, #fff 55%, transparent 100%);
+  -webkit-mask-image: radial-gradient(circle 180px at var(--ripple-x) var(--ripple-y), #fff 0%, #fff 55%, transparent 100%);
+}
+
+@media (max-width: 760px) {
+  .hero__logo-visual {
+    display: none;
+  }
+}
+
+/* dica de scroll -- pequena e sutil, so' em repouso (opacidade
+   controlada via JS, sumindo rapido assim que o scroll comeca). */
+.hero__scroll-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 36px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  color: #000;
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.hero__scroll-hint svg {
+  animation: scrollHintBounce 1.8s ease-in-out infinite;
+}
+
+@keyframes scrollHintBounce {
+  0%, 100% { transform: translateY(0); opacity: .45; }
+  50% { transform: translateY(5px); opacity: .9; }
+}
+
+/* o zoom/mascara da hero roda em qualquer tamanho de tela (js/script.js
+   usa window.innerWidth/innerHeight, ja' responsivo) -- no mobile so'
+   ajustamos tipografia/espacamento pra caber melhor numa tela estreita. */
+@media (max-width: 760px) {
+  .hero__real .eyebrow {
+    white-space: normal;
+  }
+
+  .hero__real h1 {
+    font-size: clamp(34px, 9vw, 44px);
+  }
+
+  .hero__desc {
+    font-size: 16px;
+    max-width: 100%;
+  }
+}
+
+/* ---------- MARQUEE ---------- */
+
+.marquee {
+  border-top: 1px solid var(--border-1);
+  border-bottom: 1px solid var(--border-1);
+  overflow: hidden;
+  padding: 20px 0;
+}
+
+.marquee__track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+
+.marquee__seq {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 20px;
+  color: var(--text-40, rgba(255, 255, 255, .4));
+}
+
+.marquee__seq span {
+  padding: 0 18px;
+}
+
+/* ---------- PILARES ---------- */
+
+.pillars {
+  position: relative;
+  padding-top: 90px;
+  padding-bottom: 90px;
+}
+
+.pillars__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+}
+
+/* tilt 3D no hover (js/animations.js anima rotationX/rotationY via
+   GSAP conforme o mouse se move sobre o card) -- will-change avisa o
+   browser que o transform vai mudar com frequencia. */
+.pillar {
+  will-change: transform;
+}
+
+.pillar h3 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+
+.pillar p {
+  font-size: 15px;
+  color: var(--text-60);
+}
+
+/* ---------- SERVICOS ---------- */
+
+.services {
+  padding-top: 90px;
+  padding-bottom: 90px;
+}
+
+.services__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius-card);
+  padding: 32px;
+  min-height: 230px;
+  transition: border-color .2s ease;
+  will-change: transform;
+}
+
+.card:hover {
+  border-color: var(--border-hover);
+}
+
+.card__number {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 15px;
+  color: rgba(255, 255, 255, .35);
+  margin-bottom: 18px;
+}
+
+.card h3 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 23px;
+  margin-bottom: 12px;
+}
+
+.card p {
+  font-size: 14.5px;
+  color: var(--text-62);
+}
+
+/* mobile: grade vira um carrossel horizontal (arrasta com o dedo) --
+   cada card ocupa a maior parte da largura, com um pedacinho do
+   proximo espiando na borda pra convidar a arrastar. o scroll-snap
+   trava suave no inicio de cada card. */
+@media (max-width: 760px) {
+  .services__grid {
+    display: flex;
+    grid-template-columns: none;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 14px;
+    margin: 0 calc(-1 * var(--container-pad));
+    padding: 4px var(--container-pad) 12px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .services__grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .card {
+    flex: 0 0 80%;
+    scroll-snap-align: start;
+    padding: 22px;
+    min-height: 180px;
+  }
+
+  .card__number {
+    font-size: 13px;
+    margin-bottom: 10px;
+  }
+
+  .card h3 {
+    font-size: 18px;
+    margin-bottom: 8px;
+  }
+
+  .card p {
+    font-size: 13.5px;
+    line-height: 1.45;
+  }
+}
+
+/* ---------- PROCESSO ---------- */
+
+.process {
+  padding-top: 90px;
+  padding-bottom: 90px;
+  border-top: 1px solid var(--border-1);
+}
+
+.process__box {
+  position: relative;
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius-card);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  overflow: hidden;
+}
+
+/* linha que preenche (GSAP scrub, js/animations.js) conforme o usuario
+   rola pela secao de processo -- da' a sensacao de "progresso" ligado
+   ao scroll, alem do simples fade de entrada dos passos. */
+.process__progress {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 3px;
+  background: rgba(255, 255, 255, .08);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.process__progress span {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: #fff;
+  box-shadow: 0 0 12px rgba(255, 255, 255, .5);
+}
+
+.process__step {
+  padding: 32px;
+  border-left: 1px solid var(--border-2);
+  transition: background .3s ease;
+}
+
+.process__step:hover,
+.process__step:active {
+  background: rgba(255, 255, 255, .03);
+}
+
+.process__step:first-child {
+  border-left: none;
+}
+
+.process__step-number {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 44px;
+  color: rgba(255, 255, 255, .14);
+  margin-bottom: 12px;
+}
+
+.process__step h3 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+
+.process__step p {
+  font-size: 14px;
+  color: var(--text-62);
+}
+
+/* mobile: 2 passos de um lado, 2 do outro (grid 2x2) em vez de
+   empilhar os 4 -- cabe tudo num campo de visao so'. as bordas viram
+   um "tabuleiro" (linha do meio na vertical e na horizontal) em vez da
+   sequencia de divisorias verticais feita pro layout de uma linha so'.
+   nth-child conta TODOS os irmaos, incluindo a .process__progress (1o
+   filho, fora do fluxo do grid mas ainda conta na ordem do DOM) -- por
+   isso os passos 01..04 sao' na verdade os filhos 2..5, nao 1..4. */
+@media (max-width: 760px) {
+  .process__box {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .process__step {
+    padding: 20px 16px;
+    border-left: none;
+  }
+
+  .process__step:nth-child(2),
+  .process__step:nth-child(4) {
+    border-right: 1px solid var(--border-2);
+  }
+
+  .process__step:nth-child(2),
+  .process__step:nth-child(3) {
+    border-bottom: 1px solid var(--border-2);
+  }
+
+  .process__step-number {
+    font-size: 26px;
+    margin-bottom: 8px;
+  }
+
+  .process__step h3 {
+    font-size: 16px;
+    margin-bottom: 6px;
+  }
+
+  .process__step p {
+    font-size: 12.5px;
+    line-height: 1.4;
+  }
+}
+
+/* ---------- PORTFOLIO ---------- */
+
+.portfolio {
+  padding-top: 90px;
+  padding-bottom: 90px;
+}
+
+/* layout: menu de nomes a' esquerda, previa flutuante (sticky) a'
+   direita -- clicar num nome troca a imagem da previa com crossfade
+   (js/main.js). o sticky faz a previa "flutuar" acompanhando o scroll
+   enquanto a lista de nomes passa por baixo dela. */
+.portfolio__layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) minmax(320px, 1.15fr);
+  gap: 56px;
+  align-items: start;
+}
+
+.portfolio__menu {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.portfolio__menu-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 26px 0 26px 24px;
+  border: none;
+  border-top: 1px solid var(--border-2);
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.portfolio__menu-item:last-child {
+  border-bottom: 1px solid var(--border-2);
+}
+
+.portfolio__menu-number {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 26px;
+  color: rgba(255, 255, 255, .16);
+  min-width: 36px;
+  transition: color .3s ease;
+}
+
+.portfolio__menu-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: transform .35s cubic-bezier(.22, 1, .36, 1);
+}
+
+.portfolio__menu-text strong {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(19px, 2.4vw, 26px);
+  color: var(--text-55);
+  transition: color .3s ease;
+}
+
+.portfolio__menu-text span {
+  font-size: 13px;
+  color: var(--text-50);
+}
+
+.portfolio__menu-item:hover .portfolio__menu-text,
+.portfolio__menu-item.is-active .portfolio__menu-text {
+  transform: translateX(10px);
+}
+
+.portfolio__menu-item:hover .portfolio__menu-number,
+.portfolio__menu-item.is-active .portfolio__menu-number {
+  color: rgba(255, 255, 255, .7);
+}
+
+.portfolio__menu-item:hover .portfolio__menu-text strong,
+.portfolio__menu-item.is-active .portfolio__menu-text strong {
+  color: #fff;
+}
+
+/* barrinha que desliza (GSAP, js/main.js) ate' a posicao do item ativo */
+.portfolio__menu-indicator {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2px;
+  height: 0;
+  background: #fff;
+  pointer-events: none;
+}
+
+.portfolio__preview {
+  position: sticky;
+  top: 100px;
+}
+
+.portfolio__preview-frame {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  padding: 0;
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius-img);
+  background: var(--surface);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.portfolio__preview-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  display: block;
+  transition: filter .5s ease;
+  will-change: transform;
+}
+
+/* dica que aparece no hover, convidando a abrir o site de verdade */
+.portfolio__preview-hint {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: -.01em;
+  color: #fff;
+  background: rgba(0, 0, 0, .45);
+  opacity: 0;
+  transition: opacity .3s ease;
+  pointer-events: none;
+}
+
+.portfolio__preview-frame:hover img {
+  filter: brightness(.55);
+}
+
+.portfolio__preview-frame:hover .portfolio__preview-hint {
+  opacity: 1;
+}
+
+/* mobile: previa fica sempre embaixo da lista de nomes (ordem normal
+   do DOM, sem sticky) -- e como toque nao tem ":hover" de verdade, a
+   dica "ver site por dentro" fica sempre visivel (em vez de so'
+   aparecer ao passar o mouse), deixando claro que da' pra tocar ali. */
+@media (max-width: 760px) {
+  .portfolio__layout {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .portfolio__preview {
+    position: static;
+  }
+
+  .portfolio__menu-item {
+    padding: 18px 0 18px 16px;
+    gap: 14px;
+  }
+
+  .portfolio__menu-number {
+    font-size: 20px;
+    min-width: 28px;
+  }
+
+  .portfolio__menu-text strong {
+    font-size: 18px;
+  }
+
+  .portfolio__menu-text span {
+    font-size: 12px;
+  }
+
+  .portfolio__preview-frame img {
+    filter: brightness(.7);
+  }
+
+  .portfolio__preview-hint {
+    opacity: 1;
+    background: linear-gradient(to top, rgba(0, 0, 0, .55), transparent 55%);
+    align-items: flex-end;
+    padding-bottom: 18px;
+    font-size: 14px;
+  }
+}
+
+/* ---------- MODAL: SITE DE VERDADE RODANDO (iframe) ---------- */
+/*
+  o iframe usa srcdoc com o HTML REAL do projeto (video removido pra
+  nao pesar, imagens remotas e CSS/fontes de framework ja embutidos --
+  ver js/portfolio-live-data.js) -- da' pra rolar, passar o mouse nos
+  botoes, abrir o menu mobile etc., tudo de verdade, sem depender de
+  rede nenhuma (funciona local e no artifact publicado).
+*/
+.site-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(12px, 4vw, 56px);
+  background: rgba(0, 0, 0, .75);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s ease;
+}
+
+.site-modal.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.site-modal__window {
+  width: 100%;
+  max-width: 1160px;
+  height: 100%;
+  max-height: 800px;
+  display: flex;
+  flex-direction: column;
+  background: #16181c;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 60px 140px -40px rgba(0, 0, 0, .8);
+  transform: scale(.96) translateY(10px);
+  transition: transform .35s cubic-bezier(.22, 1, .36, 1);
+}
+
+.site-modal.is-open .site-modal__window {
+  transform: scale(1) translateY(0);
+}
+
+.site-modal__bar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 16px;
+  background: #21242b;
+  border-bottom: 1px solid rgba(255, 255, 255, .08);
+}
+
+.site-modal__dots {
+  display: flex;
+  gap: 7px;
+}
+
+.site-modal__dots span {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .18);
+}
+
+.site-modal__title {
+  flex: 1;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-60);
+}
+
+.site-modal__close {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, .08);
+  color: #fff;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.site-modal__close:hover {
+  background: rgba(255, 255, 255, .16);
+}
+
+.site-modal__frame {
+  flex: 1;
+  width: 100%;
+  border: none;
+  background: #fff;
+}
+
+@media (max-width: 760px) {
+  .site-modal {
+    padding: 0;
+  }
+
+  .site-modal__window {
+    max-width: none;
+    max-height: none;
+    border-radius: 0;
+  }
+}
+
+/* ---------- SOBRE ---------- */
+
+.about {
+  padding-top: 90px;
+  padding-bottom: 90px;
+  border-top: 1px solid var(--border-1);
+}
+
+.about__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 56px;
+  align-items: center;
+}
+
+.about__photo {
+  width: 100%;
+  max-width: 440px;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border-radius: var(--radius-card);
+  border: 1px solid var(--border-3);
+  display: block;
+  will-change: transform;
+}
+
+.about__content h2 {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(30px, 4.4vw, 50px);
+  margin: 14px 0 20px;
+}
+
+.about__content p {
+  font-size: 16px;
+  color: var(--text-68);
+  margin-bottom: 16px;
+}
+
+.about__content .btn {
+  margin-top: 12px;
+}
+
+/* dentro do bloco "sobre" (que ja e' um reveal-item inteiro): primeiro
+   aparece o titulo/eyebrow, so' depois o texto completo -- reaproveita o
+   MESMO gatilho (classe .in do IntersectionObserver em main.js), so'
+   com atraso proprio pro corpo do texto entrar depois do titulo. */
+.about__intro,
+.about__body {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity .6s ease, transform .6s ease;
+}
+
+.about__content.in .about__intro {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.about__content.in .about__body {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: .45s;
+}
+
+/* ---------- DEPOIMENTOS ---------- */
+
+.testimonials {
+  position: relative;
+  padding-top: 90px;
+  padding-bottom: 90px;
+}
+
+.testimonials__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 20px;
+}
+
+.testimonial {
+  background: var(--surface);
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius-card);
+  padding: 32px;
+  will-change: transform;
+}
+
+.testimonial__quote-mark {
+  font-family: var(--font-display);
+  font-size: 40px;
+  font-weight: 800;
+  color: var(--text-50);
+  line-height: 1;
+  margin-bottom: 12px;
+}
+
+.testimonial p {
+  font-size: 16px;
+  color: var(--text-82);
+  margin-bottom: 24px;
+}
+
+.testimonial__author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.testimonial__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--border-4);
+  flex-shrink: 0;
+}
+
+.testimonial__author strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.testimonial__author span {
+  font-size: 12.5px;
+  color: var(--text-50);
+}
+
+/* ---------- CONTATO ---------- */
+
+.contact {
+  position: relative;
+  padding-top: 90px;
+  padding-bottom: 90px;
+}
+
+.contact__box {
+  position: relative;
+  background: var(--surface-2);
+  border: 1px solid var(--border-3);
+  border-radius: var(--radius-contact);
+  padding: clamp(32px, 6vw, 72px);
+  overflow: hidden;
+}
+
+.contact__watermark {
+  position: absolute;
+  bottom: -20px;
+  right: -20px;
+  width: clamp(160px, 22vw, 280px);
+  opacity: .05;
+  z-index: 0;
+}
+
+.contact__grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 48px;
+}
+
+.contact__info h2 {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(28px, 4.2vw, 44px);
+  margin-bottom: 16px;
+}
+
+.contact__info p {
+  font-size: 15px;
+  color: var(--text-66);
+  margin-bottom: 28px;
+  max-width: 420px;
+}
+
+.contact__list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.contact__list a {
+  color: var(--white);
+  text-decoration: none;
+  font-size: 15px;
+}
+
+.contact__list a:hover {
+  color: var(--hover-white);
+}
+
+.contact__list strong {
+  font-weight: 600;
+  color: var(--text-72);
+  margin-right: 6px;
+}
+
+.form-field {
+  margin-bottom: 22px;
+}
+
+.form-field label {
+  display: block;
+  font-size: 13px;
+  color: var(--text-60);
+  margin-bottom: 8px;
+}
+
+.form-field input,
+.form-field textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, .2);
+  color: var(--white);
+  font-family: var(--font-body);
+  font-size: 15px;
+  padding: 8px 2px;
+  outline: none;
+  transition: border-color .2s ease;
+  resize: none;
+}
+
+.form-field input:focus,
+.form-field textarea:focus {
+  border-color: var(--white);
+}
+
+/* ---------- FOOTER ---------- */
+
+.footer {
+  padding-top: 70px;
+  padding-bottom: 32px;
+  border-top: 1px solid var(--border-1);
+}
+
+.footer__top {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 40px;
+  margin-bottom: 48px;
+}
+
+.footer__brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.footer__brand img {
+  width: 26px;
+  height: 26px;
+  filter: brightness(0) invert(1);
+}
+
+.footer__brand span {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: .22em;
+}
+
+.footer__col p {
+  font-size: 14px;
+  color: var(--text-60);
+  max-width: 320px;
+}
+
+.footer__col h4 {
+  font-size: 13px;
+  color: var(--text-50);
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  margin-bottom: 16px;
+}
+
+.footer__col ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.footer__col a {
+  color: var(--text-72);
+  text-decoration: none;
+  font-size: 14.5px;
+}
+
+.footer__col a:hover {
+  color: var(--white);
+}
+
+.footer__bottom {
+  border-top: 1px solid var(--border-1);
+  padding-top: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-50);
+}

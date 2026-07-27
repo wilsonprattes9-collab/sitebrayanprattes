@@ -1,0 +1,17 @@
+# variaveis de ambiente / segredos -- nunca commitar, mesmo que o
+# projeto ainda nao tenha nenhum hoje (fica pronto pra quando tiver)
+.env
+.env.*
+!.env.example
+
+# arquivos de SO / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# artefatos de build, caso algum dia entre alguma ferramenta
+node_modules/
+dist/
+.vercel/
