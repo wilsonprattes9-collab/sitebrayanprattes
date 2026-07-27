@@ -4,6 +4,20 @@
   box-sizing: border-box;
 }
 
+/* titulos que existem so' pra hierarquia semantica/SEO (h1 -> h2 -> h3
+   sem pular nivel) mas nao fazem parte do design visual da secao. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* substitui um style="position:absolute" que existia inline no SVG dos
    filtros de agua -- fora do HTML pra nao precisar de 'unsafe-inline'
    no style-src do CSP. */

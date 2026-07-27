@@ -41,7 +41,7 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com 'sha256-n/p0XkjKe7se+AmG4mRrVLGg3vHqn7XSaEAvkOK/99w=' 'sha256-h39TfGQxubnLlagAcQ7hm/oUlZ/sofKT1WJAQ4z2jhs='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; media-src 'self' data:; connect-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';"
+          "value": "default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com 'sha256-n/p0XkjKe7se+AmG4mRrVLGg3vHqn7XSaEAvkOK/99w=' 'sha256-h39TfGQxubnLlagAcQ7hm/oUlZ/sofKT1WJAQ4z2jhs=' 'sha256-xxLIgsYIiBmzhahmw+xcjKkagGrXi3CzfQji8szZzFE='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; media-src 'self' data:; connect-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';"
         }
       ]
     }

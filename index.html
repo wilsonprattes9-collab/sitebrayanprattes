@@ -15,18 +15,49 @@
      style-src/media-src liberam 'unsafe-inline'/data: (o preview usa
      estilo inline e video em base64; risco baixo, nao permite carregar
      nada de fora). script-src continua SEM 'unsafe-inline' (a defesa
-     real contra XSS) -- os 2 unicos <script> inline que esses previews
-     precisam (carrossel/depoimentos/menu da Lume e da Contabilidade X)
+     real contra XSS) -- os 3 unicos <script> inline no site (2 dos
+     previews do portfolio -- carrossel/depoimentos/menu da Lume e da
+     Contabilidade X -- + o JSON-LD de dados estruturados aqui embaixo)
      estao liberados por HASH exato (sha256-...), nao por unsafe-inline.
-     Se o conteudo desses 2 scripts mudar (recriar os previews do
-     portfolio), os hashes abaixo precisam ser recalculados, senao esse
-     JS especifico para de rodar dentro do modal. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com 'sha256-n/p0XkjKe7se+AmG4mRrVLGg3vHqn7XSaEAvkOK/99w=' 'sha256-h39TfGQxubnLlagAcQ7hm/oUlZ/sofKT1WJAQ4z2jhs='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; media-src 'self' data:; connect-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self';">
+     Se o conteudo de algum desses 3 scripts mudar, o hash correspondente
+     precisa ser recalculado, senao esse script especifico para de rodar. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com 'sha256-n/p0XkjKe7se+AmG4mRrVLGg3vHqn7XSaEAvkOK/99w=' 'sha256-h39TfGQxubnLlagAcQ7hm/oUlZ/sofKT1WJAQ4z2jhs=' 'sha256-xxLIgsYIiBmzhahmw+xcjKkagGrXi3CzfQji8szZzFE='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; media-src 'self' data:; connect-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self';">
 <meta name="referrer" content="strict-origin-when-cross-origin">
+
+<!-- favicon / icones -->
+<link rel="icon" type="image/svg+xml" href="logo/logo-simbolo-final.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#000000">
+
+<!-- canonical -- ATUALIZAR quando trocar pra um dominio proprio -->
+<link rel="canonical" href="https://sitebrayanprattes.vercel.app/">
+
+<!-- Open Graph (preview ao compartilhar no WhatsApp/LinkedIn/Facebook) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Brayan Prattes">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:url" content="https://sitebrayanprattes.vercel.app/">
+<meta property="og:title" content="Brayan Prattes — Sites com inteligência, no topo do Google">
+<meta property="og:description" content="Sites animados com inteligência artificial, otimizados para SEO e blindados, em conformidade com a LGPD e as melhores práticas de cibersegurança.">
+<meta property="og:image" content="https://sitebrayanprattes.vercel.app/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Brayan Prattes — Sites com inteligência, no topo do Google">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Brayan Prattes — Sites com inteligência, no topo do Google">
+<meta name="twitter:description" content="Sites animados com inteligência artificial, otimizados para SEO e blindados, em conformidade com a LGPD.">
+<meta name="twitter:image" content="https://sitebrayanprattes.vercel.app/assets/og-image.jpg">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"ProfessionalService","name":"Brayan Prattes","image":"https://sitebrayanprattes.vercel.app/assets/og-image.jpg","url":"https://sitebrayanprattes.vercel.app/","telephone":"+5511993503008","email":"wilson.prattes9@gmail.com","areaServed":"BR","sameAs":["https://www.instagram.com/brayanprattess/"],"founder":{"@type":"Person","name":"Brayan Prattes"},"makesOffer":[{"@type":"Offer","itemOffered":{"@type":"Service","name":"Criação de sites animados com IA"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Estratégias de SEO"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Conformidade com a LGPD"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Cibersegurança"}}]}</script>
 </head>
 <body>
 
@@ -113,6 +144,7 @@
     <a class="btn btn--primary" href="https://wa.me/5511993503008" target="_blank" rel="noopener noreferrer">Falar no WhatsApp</a>
   </div>
 
+  <main>
   <!-- hero -->
   <section class="hero" id="topo">
     <div class="hero__pin">
@@ -202,6 +234,7 @@
   <!-- pilares -->
   <section class="pillars container">
     <div class="section-curtain" aria-hidden="true"></div>
+    <h2 class="sr-only">Por que trabalhar com a Brayan Prattes</h2>
     <div class="pillars__grid">
       <div class="pillar reveal-item">
         <h3>Movimento com IA</h3>
@@ -447,6 +480,7 @@
       </div>
     </div>
   </section>
+  </main>
 
   <!-- footer -->
   <footer class="footer container">
