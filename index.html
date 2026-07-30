@@ -2,6 +2,9 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
+<!-- precisa rodar ANTES do CSS (aplica o tema salvo sem "piscar") --
+     por isso vem logo no topo, antes de qualquer outra coisa no head. -->
+<script src="js/theme-init.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Brayan Prattes — Sites com inteligência, no topo do Google</title>
 <meta name="description" content="Sites animados com inteligência artificial, otimizados para SEO e blindados, em conformidade com a LGPD e as melhores práticas de cibersegurança.">
@@ -123,17 +126,29 @@
         <span class="nav__word">BRAYAN PRATTES</span>
       </a>
 
-      <div class="nav__desktop-only" id="navDesktopOnly">
-        <ul class="nav__links">
-          <li><a href="#servicos">Serviços</a></li>
-          <li><a href="#processo">Processo</a></li>
-          <li><a href="#portfolio">Portfólio</a></li>
-          <li><a href="#sobre">Sobre</a></li>
-        </ul>
-        <a class="btn btn--primary" href="https://wa.me/5511993503008" target="_blank" rel="noopener noreferrer">Falar no WhatsApp</a>
-      </div>
+      <div class="nav__right">
+        <div class="nav__desktop-only" id="navDesktopOnly">
+          <ul class="nav__links">
+            <li><a href="#servicos">Serviços</a></li>
+            <li><a href="#processo">Processo</a></li>
+            <li><a href="#portfolio">Portfólio</a></li>
+            <li><a href="#sobre">Sobre</a></li>
+          </ul>
+          <a class="btn btn--primary" href="https://wa.me/5511993503008" target="_blank" rel="noopener noreferrer">Falar no WhatsApp</a>
+        </div>
 
-      <button class="nav__burger" id="burgerBtn" aria-label="Abrir menu"><span></span></button>
+        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Alternar entre tema claro e escuro">
+          <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+          </svg>
+          <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+
+        <button class="nav__burger" id="burgerBtn" aria-label="Abrir menu"><span></span></button>
+      </div>
     </div>
   </nav>
 

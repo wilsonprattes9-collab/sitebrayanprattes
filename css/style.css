@@ -25,9 +25,22 @@
   position: absolute;
 }
 
+/*
+  SISTEMA DE TEMA (claro/escuro) -- toggle em js/main.js troca o
+  atributo data-theme na tag <html>; js/theme-init.js (carregado antes
+  do CSS) aplica a preferencia salva (localStorage) o quanto antes, pra
+  nao "piscar" o tema errado num primeiro frame. --escuro e' o padrao
+  (:root sem qualificador); tudo que muda no claro fica dentro do bloco
+  :root[data-theme="light"] logo abaixo. Quase todo o resto do arquivo
+  usa essas variaveis (--bg, --fg, --surface*, --border-*, --text-*,
+  --fg-rgb/--bg-rgb pros poucos lugares que precisam de rgba(...,alpha)
+  com o mesmo tom) em vez de branco/preto fixos, entao troca sozinho.
+*/
 :root {
-  --black: #000000;
-  --white: #ffffff;
+  --bg: #000000;
+  --fg: #ffffff;
+  --bg-rgb: 0, 0, 0;
+  --fg-rgb: 255, 255, 255;
   --surface: #0b0b0b;
   --surface-2: #0a0a0a;
   --graphite: #0d0d0d;
@@ -44,36 +57,43 @@
   --text-68: rgba(255, 255, 255, .68);
   --text-72: rgba(255, 255, 255, .72);
   --text-82: rgba(255, 255, 255, .82);
-  --hover-white: #d8d8d8;
+  --hover-fg: #d8d8d8;
   --gray-ref: #8a8a8a;
-  /* paleta clara/suave -- usada em so' 2 secoes (pilares e
-     depoimentos), como respiro pontual dentro de um site majoritamente
-     preto e branco. --ink e' um "preto" mais suave (nao #000 puro) pra
-     reduzir o contraste/desconforto no texto sobre fundo claro. */
-  --paper: #ffffff;
-  --paper-soft: #f5f4f0;
-  --ink: #17170f;
-  --ink-hover: #2c2c22;
+  --btn-primary-bg: #ffffff;
+  --btn-primary-fg: #000000;
+  --btn-primary-hover: #d8d8d8;
+  --outline-border: rgba(255, 255, 255, .2);
+  /* mantidos so' pra nao quebrar nada que ainda referencie os nomes
+     antigos por engano -- equivalentes a --bg/--fg. */
+  --black: #000000;
+  --white: #ffffff;
 }
 
-/* as duas secoes claras tambem tem a classe .container (max-width:
-   1240px), entao um "background" direto nelas so' pinta ate' essa
-   largura -- sobra tarja preta (fundo da pagina) dos dois lados em
-   telas largas. esse ::before "estoura" pra 100vw (sem depender do
-   max-width) e fica atras de tudo (z-index:-1, dentro do stacking
-   context que a propria secao ja cria via position:relative + z-index
-   dela). */
-.pillars::before,
-.testimonials::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  width: 100vw;
-  transform: translateX(-50%);
-  background: var(--paper);
-  z-index: -1;
+:root[data-theme="light"] {
+  --bg: #ffffff;
+  --fg: #17170f;
+  --bg-rgb: 255, 255, 255;
+  --fg-rgb: 23, 23, 15;
+  --surface: #f5f4f0;
+  --surface-2: #eeece5;
+  --border-1: rgba(23, 23, 15, .08);
+  --border-2: rgba(23, 23, 15, .10);
+  --border-3: rgba(23, 23, 15, .12);
+  --border-4: rgba(23, 23, 15, .14);
+  --border-hover: rgba(23, 23, 15, .32);
+  --text-50: rgba(23, 23, 15, .5);
+  --text-55: rgba(23, 23, 15, .55);
+  --text-60: rgba(23, 23, 15, .6);
+  --text-62: rgba(23, 23, 15, .62);
+  --text-66: rgba(23, 23, 15, .66);
+  --text-68: rgba(23, 23, 15, .68);
+  --text-72: rgba(23, 23, 15, .72);
+  --text-82: rgba(23, 23, 15, .85);
+  --hover-fg: #3a3a30;
+  --btn-primary-bg: #17170f;
+  --btn-primary-fg: #ffffff;
+  --btn-primary-hover: #2c2c22;
+  --outline-border: rgba(23, 23, 15, .25);
 }
 
 :root {
@@ -94,9 +114,10 @@ html {
 
 html, body {
   width: 100%;
-  background: #000;
-  color: var(--white);
+  background: var(--bg);
+  color: var(--fg);
   font-family: var(--font-body);
+  transition: background-color .3s ease, color .3s ease;
 }
 
 section[id] {
@@ -151,11 +172,11 @@ section[id] {
 
 .scroll-trail path {
   fill: none;
-  stroke: #fff;
+  stroke: var(--fg);
   stroke-width: 5px;
   stroke-linecap: round;
   stroke-linejoin: round;
-  filter: drop-shadow(0 0 7px rgba(255, 255, 255, .4));
+  filter: drop-shadow(0 0 7px rgba(var(--fg-rgb), .4));
 }
 
 @media (max-width: 760px) {
@@ -190,29 +211,21 @@ section[id] {
 
 /* ---------- CORTINA DE TRANSICAO ENTRE SECOES ---------- */
 /*
-  cada secao principal tem um painel preto (mesma cor do fundo da
-  pagina) cobrindo ela por cima -- js/animations.js anima o clip-path
-  desse painel (inset no topo crescendo ate' 100%) ligado ao scroll
-  (scrub), revelando a secao de cima pra baixo bem no momento em que
-  ela entra na tela. clip-path (em vez de transform/overflow) pra nao
-  precisar de overflow:hidden na secao, o que quebraria o
-  position:sticky da previa do portfolio.
+  cada secao principal tem um painel da MESMA cor do fundo da pagina
+  (var(--bg), troca sozinho com o tema) cobrindo ela por cima --
+  js/animations.js anima o clip-path desse painel (inset no topo
+  crescendo ate' 100%) ligado ao scroll (scrub), revelando a secao de
+  cima pra baixo bem no momento em que ela entra na tela. clip-path (em
+  vez de transform/overflow) pra nao precisar de overflow:hidden na
+  secao, o que quebraria o position:sticky da previa do portfolio.
 */
 .section-curtain {
   position: absolute;
   inset: 0;
-  background: #000;
+  background: var(--bg);
   z-index: 5;
   pointer-events: none;
   clip-path: inset(0 0 0 0);
-}
-
-/* nas duas secoes de paleta clara (pilares e depoimentos), a cortina
-   precisa ser branca -- senao "descobre" um fundo preto que nao bate
-   com o fundo de verdade da secao, quebrando a ilusao. */
-.pillars .section-curtain,
-.testimonials .section-curtain {
-  background: var(--paper);
 }
 
 /* ---------- GRAIN OVERLAY ---------- */
@@ -302,22 +315,22 @@ section[id] {
 }
 
 .btn--primary {
-  background: var(--white);
-  color: #000;
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-fg);
 }
 
 .btn--primary:hover {
-  background: var(--hover-white);
+  background: var(--btn-primary-hover);
 }
 
 .btn--outline {
   background: transparent;
-  color: var(--white);
-  border-color: rgba(255, 255, 255, .2);
+  color: var(--fg);
+  border-color: var(--outline-border);
 }
 
 .btn--outline:hover {
-  border-color: var(--white);
+  border-color: var(--fg);
 }
 
 /* ---------- SCROLL REVEAL ---------- */
@@ -336,10 +349,15 @@ body.intro-active {
   overflow: hidden;
 }
 
+/* a intro e' sempre uma "inversao" (flash) em relacao ao tema atual --
+   var(--fg) de fundo com var(--bg) no traco: no escuro isso da' o
+   branco-com-preto de sempre; no claro vira preto-com-branco. garante
+   que a entrada bate exatamente com o estado de repouso da hero logo
+   depois (que usa a MESMA logica cruzada). */
 .intro {
   position: fixed;
   inset: 0;
-  background: #fff;
+  background: var(--fg);
   z-index: 2000;
   display: flex;
   align-items: center;
@@ -359,14 +377,14 @@ body.intro-active {
 
 .intro__stroke {
   fill: none;
-  stroke: #000;
+  stroke: var(--bg);
   stroke-width: 7;
   stroke-linejoin: round;
   stroke-linecap: round;
 }
 
 .intro__fill {
-  fill: #000;
+  fill: var(--bg);
   opacity: 0;
 }
 
@@ -455,6 +473,42 @@ body.intro-active {
   gap: 32px;
 }
 
+.nav__right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* mesma solucao de fundo solido/opaco do burger (ver comentario logo
+   abaixo) -- um chip branco com icone preto, sempre visivel (mobile e
+   desktop), independente da secao por baixo. */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 12px;
+  background: #fff;
+  color: #000;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .15);
+  cursor: pointer;
+}
+
+.theme-toggle__icon--sun {
+  display: none;
+}
+
+:root[data-theme="light"] .theme-toggle__icon--sun {
+  display: block;
+}
+
+:root[data-theme="light"] .theme-toggle__icon--moon {
+  display: none;
+}
+
 /* fundo solido/opaco (mesma solucao ja' usada no botao "Falar no
    WhatsApp") em vez de mix-blend-mode -- blend-mode em pseudo-elementos
    empilhados (::before/::after) nao composita direito e o icone
@@ -525,7 +579,7 @@ body.intro-active {
 .nav__mobile-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, .97);
+  background: rgba(var(--bg-rgb), .97);
   z-index: 400;
   display: flex;
   flex-direction: column;
@@ -546,8 +600,20 @@ body.intro-active {
   font-family: var(--font-display);
   font-weight: 800;
   font-size: 34px;
-  color: var(--white);
+  color: var(--fg);
   text-decoration: none;
+}
+
+/* especificidade da regra acima (.nav__mobile-overlay a) vence a de
+   .btn/.btn--primary sozinhas -- sem isso o botao do WhatsApp fica
+   gigante (fonte de titulo, 34px) e com o texto da mesma cor do
+   proprio fundo (invisivel) nos dois temas. restaura aqui os valores
+   que .btn normalmente daria. */
+.nav__mobile-overlay a.btn--primary {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 14.5px;
+  color: var(--btn-primary-fg);
 }
 
 @media (max-width: 860px) {
@@ -565,7 +631,7 @@ body.intro-active {
 .hero {
   position: relative;
   height: 300vh; /* espaco de scroll para "esticar" a animacao */
-  background: #000;
+  background: var(--bg);
 }
 
 /*
@@ -581,7 +647,7 @@ body.intro-active {
   width: 100%;
   height: 100vh;
   overflow: hidden;
-  background: #000;
+  background: var(--bg);
 }
 
 .hero__stage {
@@ -647,7 +713,7 @@ body.intro-active {
   right: -60px;
   width: clamp(220px, 22vw, 380px);
   height: auto;
-  fill: #fff;
+  fill: var(--fg);
   opacity: .06;
   z-index: -1;
   pointer-events: none;
@@ -667,7 +733,7 @@ body.intro-active {
 .hero__mask-overlay {
   position: absolute;
   inset: 0;
-  background: #fff;
+  background: var(--fg);
   z-index: 2;
   pointer-events: none;
 }
@@ -675,7 +741,10 @@ body.intro-active {
 /* desenho solido da logo, sincronizado com o buraco (js/script.js) --
    existe so' pra poder aplicar o filtro de agua no hover (um clip-path
    nao pode ser destorcido por filter, mas um preenchimento normal
-   pode). fica por cima do overlay (z-index maior). */
+   pode). fica por cima do overlay (z-index maior). fill=var(--bg) (nao
+   #000 fixo) pra sumir sem deixar costura quando o clipOff acontece e
+   revela o fundo de verdade da hero (.hero__pin, tambem var(--bg)) --
+   os dois precisam bater exatamente, em qualquer tema. */
 .hero__logo-visual {
   position: absolute;
   inset: 0;
@@ -684,6 +753,11 @@ body.intro-active {
   z-index: 3;
   pointer-events: none;
   overflow: visible;
+}
+
+#heroLogoGroup,
+#heroLogoGroupRipple {
+  fill: var(--bg);
 }
 
 /* copia sempre-destorcida da logo -- so' aparece onde a mask-image
@@ -723,7 +797,7 @@ body.intro-active {
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  color: #000;
+  color: var(--bg);
   font-family: var(--font-body);
   font-size: 10px;
   font-weight: 600;
@@ -782,7 +856,7 @@ body.intro-active {
   font-family: var(--font-display);
   font-weight: 800;
   font-size: 20px;
-  color: var(--text-40, rgba(255, 255, 255, .4));
+  color: rgba(var(--fg-rgb), .4);
 }
 
 .marquee__seq span {
@@ -791,31 +865,10 @@ body.intro-active {
 
 /* ---------- PILARES ---------- */
 
-/* pilares usa a paleta clara/suave (respiro logo apos a hero) --
-   redefine LOCALMENTE as mesmas variaveis de texto/borda/superficie
-   (--text-*, --border-*, --surface*) que o resto do CSS ja' usa via
-   var(), entao os filhos herdam a cor certa sem precisar tocar em cada
-   regra. */
 .pillars {
   position: relative;
   padding-top: 90px;
   padding-bottom: 90px;
-  background: var(--paper);
-  color: var(--ink);
-  --surface: var(--paper-soft);
-  --border-1: rgba(23, 23, 15, .08);
-  --border-2: rgba(23, 23, 15, .10);
-  --border-3: rgba(23, 23, 15, .12);
-  --border-4: rgba(23, 23, 15, .14);
-  --border-hover: rgba(23, 23, 15, .32);
-  --text-50: rgba(23, 23, 15, .5);
-  --text-55: rgba(23, 23, 15, .55);
-  --text-60: rgba(23, 23, 15, .6);
-  --text-62: rgba(23, 23, 15, .62);
-  --text-66: rgba(23, 23, 15, .66);
-  --text-68: rgba(23, 23, 15, .68);
-  --text-72: rgba(23, 23, 15, .72);
-  --text-82: rgba(23, 23, 15, .85);
 }
 
 .pillars__grid {
@@ -874,7 +927,7 @@ body.intro-active {
   font-family: var(--font-display);
   font-weight: 800;
   font-size: 15px;
-  color: rgba(255, 255, 255, .35);
+  color: rgba(var(--fg-rgb), .35);
   margin-bottom: 18px;
 }
 
@@ -960,7 +1013,7 @@ body.intro-active {
   bottom: 0;
   width: 100%;
   height: 3px;
-  background: rgba(255, 255, 255, .08);
+  background: rgba(var(--fg-rgb), .08);
   z-index: 2;
   pointer-events: none;
 }
@@ -969,8 +1022,8 @@ body.intro-active {
   display: block;
   height: 100%;
   width: 0%;
-  background: #fff;
-  box-shadow: 0 0 12px rgba(255, 255, 255, .5);
+  background: var(--fg);
+  box-shadow: 0 0 12px rgba(var(--fg-rgb), .5);
 }
 
 .process__step {
@@ -981,7 +1034,7 @@ body.intro-active {
 
 .process__step:hover,
 .process__step:active {
-  background: rgba(255, 255, 255, .03);
+  background: rgba(var(--fg-rgb), .03);
 }
 
 .process__step:first-child {
@@ -992,7 +1045,7 @@ body.intro-active {
   font-family: var(--font-display);
   font-weight: 900;
   font-size: 44px;
-  color: rgba(255, 255, 255, .14);
+  color: rgba(var(--fg-rgb), .14);
   margin-bottom: 12px;
 }
 
@@ -1099,7 +1152,7 @@ body.intro-active {
   font-family: var(--font-display);
   font-weight: 900;
   font-size: 26px;
-  color: rgba(255, 255, 255, .16);
+  color: rgba(var(--fg-rgb), .16);
   min-width: 36px;
   transition: color .3s ease;
 }
@@ -1131,12 +1184,12 @@ body.intro-active {
 
 .portfolio__menu-item:hover .portfolio__menu-number,
 .portfolio__menu-item.is-active .portfolio__menu-number {
-  color: rgba(255, 255, 255, .7);
+  color: rgba(var(--fg-rgb), .7);
 }
 
 .portfolio__menu-item:hover .portfolio__menu-text strong,
 .portfolio__menu-item.is-active .portfolio__menu-text strong {
-  color: #fff;
+  color: var(--fg);
 }
 
 /* barrinha que desliza (GSAP, js/main.js) ate' a posicao do item ativo */
@@ -1146,7 +1199,7 @@ body.intro-active {
   top: 0;
   width: 2px;
   height: 0;
-  background: #fff;
+  background: var(--fg);
   pointer-events: none;
 }
 
@@ -1320,7 +1373,9 @@ body.intro-active {
   flex: 1;
   text-align: center;
   font-size: 13px;
-  color: var(--text-60);
+  /* fixo (nao var(--text-60)) -- o chrome do modal e' sempre escuro
+     (mockup de janela de navegador), independente do tema do site. */
+  color: rgba(255, 255, 255, .6);
 }
 
 .site-modal__close {
@@ -1476,22 +1531,6 @@ body.intro-active {
   position: relative;
   padding-top: 90px;
   padding-bottom: 90px;
-  background: var(--paper);
-  color: var(--ink);
-  --surface: var(--paper-soft);
-  --border-1: rgba(23, 23, 15, .08);
-  --border-2: rgba(23, 23, 15, .10);
-  --border-3: rgba(23, 23, 15, .12);
-  --border-4: rgba(23, 23, 15, .14);
-  --border-hover: rgba(23, 23, 15, .32);
-  --text-50: rgba(23, 23, 15, .5);
-  --text-55: rgba(23, 23, 15, .55);
-  --text-60: rgba(23, 23, 15, .6);
-  --text-62: rgba(23, 23, 15, .62);
-  --text-66: rgba(23, 23, 15, .66);
-  --text-68: rgba(23, 23, 15, .68);
-  --text-72: rgba(23, 23, 15, .72);
-  --text-82: rgba(23, 23, 15, .85);
 }
 
 .testimonials__grid {
@@ -1604,13 +1643,13 @@ body.intro-active {
 }
 
 .contact__list a {
-  color: var(--white);
+  color: var(--fg);
   text-decoration: none;
   font-size: 15px;
 }
 
 .contact__list a:hover {
-  color: var(--hover-white);
+  color: var(--hover-fg);
 }
 
 .contact__list strong {
@@ -1635,8 +1674,8 @@ body.intro-active {
   width: 100%;
   background: transparent;
   border: none;
-  border-bottom: 1px solid rgba(255, 255, 255, .2);
-  color: var(--white);
+  border-bottom: 1px solid rgba(var(--fg-rgb), .2);
+  color: var(--fg);
   font-family: var(--font-body);
   font-size: 15px;
   padding: 8px 2px;
@@ -1647,7 +1686,7 @@ body.intro-active {
 
 .form-field input:focus,
 .form-field textarea:focus {
-  border-color: var(--white);
+  border-color: var(--fg);
 }
 
 /* ---------- FOOTER ---------- */
@@ -1676,6 +1715,12 @@ body.intro-active {
   width: 26px;
   height: 26px;
   filter: brightness(0) invert(1);
+}
+
+/* no tema claro o rodape fica com fundo claro -- forcar branco (via
+   invert) deixaria a logo invisivel, entao so' forca preto. */
+:root[data-theme="light"] .footer__brand img {
+  filter: brightness(0);
 }
 
 .footer__brand span {
@@ -1713,7 +1758,7 @@ body.intro-active {
 }
 
 .footer__col a:hover {
-  color: var(--white);
+  color: var(--fg);
 }
 
 .footer__bottom {

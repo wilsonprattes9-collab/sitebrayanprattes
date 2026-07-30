@@ -114,7 +114,11 @@ function render(progress) {
   // "parado" por boa parte do scroll e so' revelar tudo de repente perto
   // do fim (o que acontecia com uma curva ease-in).
   currentScale = gsap.utils.interpolate(SCALE_START, SCALE_END, progress);
-  const bg = Math.round(gsap.utils.interpolate(255, 0, progress));
+  // no escuro a mascara vai de branco (255) pra preto (0); no claro e' o
+  // contrario (preto pra branco) -- se nao invertesse aqui, a hero ficaria
+  // com uma cor "presa" no tema escuro mesmo depois de trocar pro claro.
+  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  const bg = Math.round(gsap.utils.interpolate(isLight ? 0 : 255, isLight ? 255 : 0, progress));
   const clipOff = progress >= CLIP_OFF_AT;
   gsap.set(maskOverlay, {
     clipPath: clipOff ? 'none' : buildClipPath(currentScale),
@@ -191,5 +195,12 @@ window.addEventListener('DOMContentLoaded', () => {
       SCALE_END = scales.end;
       render(heroScrollTrigger ? heroScrollTrigger.progress : 0);
     }, 150);
+  });
+
+  // troca de tema no meio do scroll da hero: redesenha na hora (sem
+  // esperar o proximo scroll/onUpdate) pra mascara e logo acompanharem
+  // a cor nova imediatamente.
+  document.addEventListener('themechange', () => {
+    render(heroScrollTrigger ? heroScrollTrigger.progress : 0);
   });
 });

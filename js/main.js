@@ -19,6 +19,32 @@ if (burgerBtn && mobileOverlay) {
   });
 }
 
+// ---------- TEMA CLARO/ESCURO ----------
+
+const themeToggle = document.getElementById('themeToggle');
+
+if (themeToggle) {
+  themeToggle.addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+    const next = current === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', next);
+
+    try {
+      localStorage.setItem('theme', next);
+    } catch (e) {
+      // localStorage pode falhar (modo privado) -- o tema so' nao
+      // persiste entre visitas, sem quebrar o toggle nessa sessao.
+    }
+
+    const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+    if (themeColorMeta) themeColorMeta.setAttribute('content', next === 'light' ? '#ffffff' : '#000000');
+
+    // avisa js/script.js pra redesenhar a hero na hora (cores dependem
+    // do tema), caso o usuario troque o tema parado em cima dela.
+    document.dispatchEvent(new CustomEvent('themechange'));
+  });
+}
+
 // ---------- SCROLL REVEAL (GSAP ScrollTrigger, agrupado por secao) ----------
 
 const revealItems = document.querySelectorAll('.reveal-item');
