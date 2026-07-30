@@ -46,6 +46,41 @@
   --text-82: rgba(255, 255, 255, .82);
   --hover-white: #d8d8d8;
   --gray-ref: #8a8a8a;
+  /* paleta clara/suave usada nas secoes de conteudo (pilares ate'
+     depoimentos) -- hero, marquee, contato e rodape continuam na
+     paleta escura acima. --ink e' um "preto" mais suave (nao #000
+     puro) pra reduzir o contraste/desconforto no texto sobre fundo
+     claro. */
+  --paper: #ffffff;
+  --paper-soft: #f5f4f0;
+  --ink: #17170f;
+  --ink-hover: #2c2c22;
+}
+
+/* as secoes claras tambem tem a classe .container (max-width:1240px),
+   entao um "background" direto nelas so' pinta ate' essa largura --
+   sobra tarja preta (fundo da pagina) dos dois lados em telas largas.
+   esse ::before "estoura" pra 100vw (sem depender do max-width) e fica
+   atras de tudo (z-index:-1, dentro do stacking context que a propria
+   secao ja cria via position:relative + z-index dela). */
+.pillars::before,
+.services::before,
+.process::before,
+.portfolio::before,
+.about::before,
+.testimonials::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 100vw;
+  transform: translateX(-50%);
+  background: var(--paper);
+  z-index: -1;
+}
+
+:root {
   --radius-chip: 12px;
   --radius-img: 16px;
   --radius-card: 20px;
@@ -120,11 +155,11 @@ section[id] {
 
 .scroll-trail path {
   fill: none;
-  stroke: #fff;
+  stroke: var(--ink);
   stroke-width: 5px;
   stroke-linecap: round;
   stroke-linejoin: round;
-  filter: drop-shadow(0 0 7px rgba(255, 255, 255, .4));
+  filter: drop-shadow(0 0 7px rgba(23, 23, 15, .25));
 }
 
 @media (max-width: 760px) {
@@ -146,12 +181,15 @@ section[id] {
   pointer-events: none;
 }
 
+/* mix-blend-mode:difference (mesmo truque do nav) -- assim a barra
+   continua visivel tanto sobre secoes escuras quanto sobre as claras,
+   sem precisar saber via JS qual secao esta' embaixo. */
 .scroll-progress span {
   display: block;
   height: 100%;
   width: 0%;
-  background: linear-gradient(90deg, rgba(255, 255, 255, .5), #fff);
-  box-shadow: 0 0 10px rgba(255, 255, 255, .6);
+  background: #fff;
+  mix-blend-mode: difference;
 }
 
 /* ---------- CORTINA DE TRANSICAO ENTRE SECOES ---------- */
@@ -171,6 +209,18 @@ section[id] {
   z-index: 5;
   pointer-events: none;
   clip-path: inset(0 0 0 0);
+}
+
+/* nas secoes de conteudo (paleta clara), a cortina precisa ser branca
+   -- senao "descobre" um fundo preto que nao bate com o fundo de
+   verdade da secao, quebrando a ilusao. */
+.pillars .section-curtain,
+.services .section-curtain,
+.process .section-curtain,
+.portfolio .section-curtain,
+.about .section-curtain,
+.testimonials .section-curtain {
+  background: var(--paper);
 }
 
 /* ---------- GRAIN OVERLAY ---------- */
@@ -413,13 +463,19 @@ body.intro-active {
   gap: 32px;
 }
 
+/* fundo solido/opaco (mesma solucao ja' usada no botao "Falar no
+   WhatsApp") em vez de mix-blend-mode -- blend-mode em pseudo-elementos
+   empilhados (::before/::after) nao composita direito e o icone
+   simplesmente some. Um chip branco solido funciona igual em cima de
+   qualquer secao, clara ou escura. */
 .nav__burger {
   display: none;
   width: 44px;
   height: 44px;
-  border: 1px solid rgba(255, 255, 255, .2);
+  border: none;
   border-radius: 12px;
-  background: transparent;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .15);
   cursor: pointer;
   position: relative;
 }
@@ -444,7 +500,7 @@ body.intro-active {
   left: 12px;
   right: 12px;
   height: 2px;
-  background: #fff;
+  background: #000;
   transition: transform .25s ease, opacity .25s ease, top .25s ease;
 }
 
@@ -743,10 +799,32 @@ body.intro-active {
 
 /* ---------- PILARES ---------- */
 
+/* das pilares ate' depoimentos, a secao usa a paleta clara/suave --
+   redefine LOCALMENTE as mesmas variaveis de texto/borda/superficie
+   (--text-*, --border-*, --surface*) que o resto do CSS ja' usa via
+   var(), entao os filhos herdam a cor certa sem precisar tocar em cada
+   regra -- so' os poucos valores hardcoded (rgba(255,255,255,...)
+   literal, nao via var()) precisam de ajuste manual, feito mais abaixo. */
 .pillars {
   position: relative;
   padding-top: 90px;
   padding-bottom: 90px;
+  background: var(--paper);
+  color: var(--ink);
+  --surface: var(--paper-soft);
+  --border-1: rgba(23, 23, 15, .08);
+  --border-2: rgba(23, 23, 15, .10);
+  --border-3: rgba(23, 23, 15, .12);
+  --border-4: rgba(23, 23, 15, .14);
+  --border-hover: rgba(23, 23, 15, .32);
+  --text-50: rgba(23, 23, 15, .5);
+  --text-55: rgba(23, 23, 15, .55);
+  --text-60: rgba(23, 23, 15, .6);
+  --text-62: rgba(23, 23, 15, .62);
+  --text-66: rgba(23, 23, 15, .66);
+  --text-68: rgba(23, 23, 15, .68);
+  --text-72: rgba(23, 23, 15, .72);
+  --text-82: rgba(23, 23, 15, .85);
 }
 
 .pillars__grid {
@@ -779,6 +857,22 @@ body.intro-active {
 .services {
   padding-top: 90px;
   padding-bottom: 90px;
+  background: var(--paper);
+  color: var(--ink);
+  --surface: var(--paper-soft);
+  --border-1: rgba(23, 23, 15, .08);
+  --border-2: rgba(23, 23, 15, .10);
+  --border-3: rgba(23, 23, 15, .12);
+  --border-4: rgba(23, 23, 15, .14);
+  --border-hover: rgba(23, 23, 15, .32);
+  --text-50: rgba(23, 23, 15, .5);
+  --text-55: rgba(23, 23, 15, .55);
+  --text-60: rgba(23, 23, 15, .6);
+  --text-62: rgba(23, 23, 15, .62);
+  --text-66: rgba(23, 23, 15, .66);
+  --text-68: rgba(23, 23, 15, .68);
+  --text-72: rgba(23, 23, 15, .72);
+  --text-82: rgba(23, 23, 15, .85);
 }
 
 .services__grid {
@@ -805,7 +899,7 @@ body.intro-active {
   font-family: var(--font-display);
   font-weight: 800;
   font-size: 15px;
-  color: rgba(255, 255, 255, .35);
+  color: rgba(23, 23, 15, .35);
   margin-bottom: 18px;
 }
 
@@ -871,6 +965,22 @@ body.intro-active {
   padding-top: 90px;
   padding-bottom: 90px;
   border-top: 1px solid var(--border-1);
+  background: var(--paper);
+  color: var(--ink);
+  --surface: var(--paper-soft);
+  --border-1: rgba(23, 23, 15, .08);
+  --border-2: rgba(23, 23, 15, .10);
+  --border-3: rgba(23, 23, 15, .12);
+  --border-4: rgba(23, 23, 15, .14);
+  --border-hover: rgba(23, 23, 15, .32);
+  --text-50: rgba(23, 23, 15, .5);
+  --text-55: rgba(23, 23, 15, .55);
+  --text-60: rgba(23, 23, 15, .6);
+  --text-62: rgba(23, 23, 15, .62);
+  --text-66: rgba(23, 23, 15, .66);
+  --text-68: rgba(23, 23, 15, .68);
+  --text-72: rgba(23, 23, 15, .72);
+  --text-82: rgba(23, 23, 15, .85);
 }
 
 .process__box {
@@ -891,7 +1001,7 @@ body.intro-active {
   bottom: 0;
   width: 100%;
   height: 3px;
-  background: rgba(255, 255, 255, .08);
+  background: rgba(23, 23, 15, .08);
   z-index: 2;
   pointer-events: none;
 }
@@ -900,8 +1010,8 @@ body.intro-active {
   display: block;
   height: 100%;
   width: 0%;
-  background: #fff;
-  box-shadow: 0 0 12px rgba(255, 255, 255, .5);
+  background: var(--ink);
+  box-shadow: 0 0 12px rgba(23, 23, 15, .35);
 }
 
 .process__step {
@@ -912,7 +1022,7 @@ body.intro-active {
 
 .process__step:hover,
 .process__step:active {
-  background: rgba(255, 255, 255, .03);
+  background: rgba(23, 23, 15, .035);
 }
 
 .process__step:first-child {
@@ -923,7 +1033,7 @@ body.intro-active {
   font-family: var(--font-display);
   font-weight: 900;
   font-size: 44px;
-  color: rgba(255, 255, 255, .14);
+  color: rgba(23, 23, 15, .14);
   margin-bottom: 12px;
 }
 
@@ -987,6 +1097,22 @@ body.intro-active {
 .portfolio {
   padding-top: 90px;
   padding-bottom: 90px;
+  background: var(--paper);
+  color: var(--ink);
+  --surface: var(--paper-soft);
+  --border-1: rgba(23, 23, 15, .08);
+  --border-2: rgba(23, 23, 15, .10);
+  --border-3: rgba(23, 23, 15, .12);
+  --border-4: rgba(23, 23, 15, .14);
+  --border-hover: rgba(23, 23, 15, .32);
+  --text-50: rgba(23, 23, 15, .5);
+  --text-55: rgba(23, 23, 15, .55);
+  --text-60: rgba(23, 23, 15, .6);
+  --text-62: rgba(23, 23, 15, .62);
+  --text-66: rgba(23, 23, 15, .66);
+  --text-68: rgba(23, 23, 15, .68);
+  --text-72: rgba(23, 23, 15, .72);
+  --text-82: rgba(23, 23, 15, .85);
 }
 
 /* layout: menu de nomes a' esquerda, previa flutuante (sticky) a'
@@ -1030,7 +1156,7 @@ body.intro-active {
   font-family: var(--font-display);
   font-weight: 900;
   font-size: 26px;
-  color: rgba(255, 255, 255, .16);
+  color: rgba(23, 23, 15, .18);
   min-width: 36px;
   transition: color .3s ease;
 }
@@ -1062,12 +1188,12 @@ body.intro-active {
 
 .portfolio__menu-item:hover .portfolio__menu-number,
 .portfolio__menu-item.is-active .portfolio__menu-number {
-  color: rgba(255, 255, 255, .7);
+  color: rgba(23, 23, 15, .75);
 }
 
 .portfolio__menu-item:hover .portfolio__menu-text strong,
 .portfolio__menu-item.is-active .portfolio__menu-text strong {
-  color: #fff;
+  color: var(--ink);
 }
 
 /* barrinha que desliza (GSAP, js/main.js) ate' a posicao do item ativo */
@@ -1077,7 +1203,7 @@ body.intro-active {
   top: 0;
   width: 2px;
   height: 0;
-  background: #fff;
+  background: var(--ink);
   pointer-events: none;
 }
 
@@ -1296,6 +1422,22 @@ body.intro-active {
   padding-top: 90px;
   padding-bottom: 90px;
   border-top: 1px solid var(--border-1);
+  background: var(--paper);
+  color: var(--ink);
+  --surface: var(--paper-soft);
+  --border-1: rgba(23, 23, 15, .08);
+  --border-2: rgba(23, 23, 15, .10);
+  --border-3: rgba(23, 23, 15, .12);
+  --border-4: rgba(23, 23, 15, .14);
+  --border-hover: rgba(23, 23, 15, .32);
+  --text-50: rgba(23, 23, 15, .5);
+  --text-55: rgba(23, 23, 15, .55);
+  --text-60: rgba(23, 23, 15, .6);
+  --text-62: rgba(23, 23, 15, .62);
+  --text-66: rgba(23, 23, 15, .66);
+  --text-68: rgba(23, 23, 15, .68);
+  --text-72: rgba(23, 23, 15, .72);
+  --text-82: rgba(23, 23, 15, .85);
 }
 
 .about__grid {
@@ -1331,6 +1473,18 @@ body.intro-active {
 
 .about__content .btn {
   margin-top: 12px;
+}
+
+/* .btn--primary por padrao e' branco (bom sobre fundo escuro) -- aqui
+   dentro (secao clara) precisa inverter, senao fica branco sobre
+   branco, invisivel. */
+.about__content .btn--primary {
+  background: var(--ink);
+  color: #fff;
+}
+
+.about__content .btn--primary:hover {
+  background: var(--ink-hover);
 }
 
 /* mobile: foto e texto ficam lado a lado (em vez de empilhados) --
@@ -1407,6 +1561,22 @@ body.intro-active {
   position: relative;
   padding-top: 90px;
   padding-bottom: 90px;
+  background: var(--paper);
+  color: var(--ink);
+  --surface: var(--paper-soft);
+  --border-1: rgba(23, 23, 15, .08);
+  --border-2: rgba(23, 23, 15, .10);
+  --border-3: rgba(23, 23, 15, .12);
+  --border-4: rgba(23, 23, 15, .14);
+  --border-hover: rgba(23, 23, 15, .32);
+  --text-50: rgba(23, 23, 15, .5);
+  --text-55: rgba(23, 23, 15, .55);
+  --text-60: rgba(23, 23, 15, .6);
+  --text-62: rgba(23, 23, 15, .62);
+  --text-66: rgba(23, 23, 15, .66);
+  --text-68: rgba(23, 23, 15, .68);
+  --text-72: rgba(23, 23, 15, .72);
+  --text-82: rgba(23, 23, 15, .85);
 }
 
 .testimonials__grid {
