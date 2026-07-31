@@ -1574,6 +1574,10 @@ body.intro-active {
   border-radius: 50%;
   background: var(--border-4);
   flex-shrink: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .testimonial__author strong {
