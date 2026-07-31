@@ -130,10 +130,10 @@ section[id] {
   padding: 0 var(--container-pad);
 }
 
-/* ---------- RASTRO DE SCROLL (servicos -> depoimentos) ---------- */
+/* ---------- RASTRO DE SCROLL (servicos -> sobre) ---------- */
 /*
   uma "cobra" branca que desenha (e desdesenha) conforme o scroll, do
-  topo de servicos ate' o topo de depoimentos. .trail-zone envolve essas
+  topo de servicos ate' o fim de sobre. .trail-zone envolve essas
   secoes e da' o container posicional; .trail-track reusa a classe
   .container pra alinhar com a mesma margem/coluna do conteudo. O path
   (js/trail.js) comeca perto do canto esquerdo e invade o meio do texto
@@ -1523,72 +1523,6 @@ body.intro-active {
   opacity: 1;
   transform: translateY(0);
   transition-delay: .45s;
-}
-
-/* ---------- DEPOIMENTOS ---------- */
-
-.testimonials {
-  position: relative;
-  padding-top: 90px;
-  padding-bottom: 90px;
-}
-
-.testimonials__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
-  gap: 20px;
-}
-
-.testimonial {
-  background: var(--surface);
-  border: 1px solid var(--border-2);
-  border-radius: var(--radius-card);
-  padding: 32px;
-  will-change: transform;
-}
-
-.testimonial__quote-mark {
-  font-family: var(--font-display);
-  font-size: 40px;
-  font-weight: 800;
-  color: var(--text-50);
-  line-height: 1;
-  margin-bottom: 12px;
-}
-
-.testimonial p {
-  font-size: 16px;
-  color: var(--text-82);
-  margin-bottom: 24px;
-}
-
-.testimonial__author {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.testimonial__avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: var(--border-4);
-  flex-shrink: 0;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.testimonial__author strong {
-  display: block;
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.testimonial__author span {
-  font-size: 12.5px;
-  color: var(--text-50);
 }
 
 /* ---------- CONTATO ---------- */

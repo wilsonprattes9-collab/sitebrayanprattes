@@ -198,7 +198,7 @@
   // ---------- TILT 3D + BOTOES MAGNETICOS (so' em telas com mouse de verdade) ----------
 
   if (supportsHover) {
-    document.querySelectorAll('.card, .pillar, .testimonial').forEach((card) => {
+    document.querySelectorAll('.card, .pillar').forEach((card) => {
       gsap.set(card, { transformPerspective: 700, transformOrigin: 'center' });
       const rotateX = gsap.quickTo(card, 'rotationX', { duration: 0.6, ease: 'power3.out' });
       const rotateY = gsap.quickTo(card, 'rotationY', { duration: 0.6, ease: 'power3.out' });
@@ -241,7 +241,7 @@
     // toque: sem cursor pra seguir/inclinar -- em vez de deixar os
     // cards/botoes totalmente inertes no celular, um feedback rapido de
     // "pressionar" (encolhe levemente ao tocar, volta ao soltar).
-    document.querySelectorAll('.card, .pillar, .testimonial, .btn').forEach((el) => {
+    document.querySelectorAll('.card, .pillar, .btn').forEach((el) => {
       const press = () => gsap.to(el, { scale: 0.96, duration: 0.2, ease: 'power2.out' });
       const release = () => gsap.to(el, { scale: 1, duration: 0.35, ease: 'power2.out' });
       el.addEventListener('touchstart', press, { passive: true });

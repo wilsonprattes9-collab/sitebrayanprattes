@@ -1,5 +1,5 @@
 // rastro branco (tipo "cobra") que desenha/desdesenha ligado ao scroll,
-// do topo de servicos ate' o topo de depoimentos. o caminho e' gerado
+// do topo de servicos ate' o fim de sobre. o caminho e' gerado
 // como uma onda organica (nao uma linha reta) via spline catmull-rom.
 
 function catmullRomToBezierPath(points) {
