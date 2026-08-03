@@ -1462,7 +1462,7 @@ body.intro-active {
    caber ao lado sem quebrar feio numa coluna tao apertada. */
 @media (max-width: 760px) {
   .about__grid {
-    grid-template-columns: 34% 1fr;
+    grid-template-columns: 44% 1fr;
     gap: 16px;
     align-items: start;
   }
@@ -1470,6 +1470,7 @@ body.intro-active {
   .about__photo {
     max-width: 100%;
     aspect-ratio: 3 / 4;
+    object-position: center 88%;
     border-radius: 12px;
   }
 
