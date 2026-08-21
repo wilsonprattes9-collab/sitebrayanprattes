@@ -2,6 +2,8 @@
 // do topo de servicos ate' o fim de sobre. o caminho e' gerado
 // como uma onda organica (nao uma linha reta) via spline catmull-rom.
 
+gsap.registerPlugin(ScrollTrigger);
+
 function catmullRomToBezierPath(points) {
   let d = `M${points[0][0]},${points[0][1]}`;
   for (let i = 0; i < points.length - 1; i++) {

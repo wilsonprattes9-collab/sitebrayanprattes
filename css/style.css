@@ -343,51 +343,6 @@ section[id] {
   opacity: 0;
 }
 
-/* ---------- INTRO (efeito "cobra" no carregamento) ---------- */
-
-body.intro-active {
-  overflow: hidden;
-}
-
-/* a intro e' sempre uma "inversao" (flash) em relacao ao tema atual --
-   var(--fg) de fundo com var(--bg) no traco: no escuro isso da' o
-   branco-com-preto de sempre; no claro vira preto-com-branco. garante
-   que a entrada bate exatamente com o estado de repouso da hero logo
-   depois (que usa a MESMA logica cruzada). */
-.intro {
-  position: fixed;
-  inset: 0;
-  background: var(--fg);
-  z-index: 2000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* responsivo (min(486px, 50vmin)) em vez do width/height fixo (486) do
-   atributo HTML -- em telas estreitas a logo da intro ficaria maior que
-   a propria tela. js/script.js usa a MESMA formula (50% do menor lado
-   da viewport) pra achar o SCALE_START da hero, garantindo que o
-   "buraco" da hero comece exatamente do mesmo tamanho que essa logo
-   termina, sem salto visivel na troca intro -> hero. */
-.intro__logo {
-  width: min(486px, 50vmin);
-  height: min(486px, 50vmin);
-}
-
-.intro__stroke {
-  fill: none;
-  stroke: var(--bg);
-  stroke-width: 7;
-  stroke-linejoin: round;
-  stroke-linecap: round;
-}
-
-.intro__fill {
-  fill: var(--bg);
-  opacity: 0;
-}
-
 /* ---------- NAV ---------- */
 
 /*
@@ -630,65 +585,23 @@ body.intro-active {
 
 .hero {
   position: relative;
-  height: 300vh; /* espaco de scroll para "esticar" a animacao */
-  background: var(--bg);
-}
-
-/*
-  fundo PRETO -- e' o fundo de verdade do site (mesmo tom do resto da
-  pagina). O branco de repouso (igual ao fim da intro) vem inteiramente
-  do .hero__mask-overlay por cima, que cobre a tela toda menos o buraco
-  da logo -- e' por isso que o buraco parece "a logo preta": ele so' esta'
-  revelando esse preto de verdade por baixo, no formato do simbolo.
-*/
-.hero__pin {
-  position: sticky;
-  top: 0;
-  width: 100%;
-  height: 100vh;
+  padding-top: 200px;
+  padding-bottom: 130px;
   overflow: hidden;
-  background: var(--bg);
 }
 
-.hero__stage {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-
-/*
-  o site DE VERDADE mora em .hero__real, em tamanho e posicao finais,
-  parado o tempo todo -- NUNCA cresce/aparece do nada. A logo funciona
-  como uma mascara com um "buraco" no formato do simbolo por cima de
-  tudo (.hero__mask-overlay): um clip-path evenodd (retangulo enorme
-  MENOS as 4 partes do simbolo) recorta um "buraco" nesse overlay, que
-  cresce conforme o scroll (js/script.js so' anima o `scale`, technique
-  identica a' usada antes no .hero__mask). Fora do buraco, o overlay
-  escurece (branco -> preto) puxado pelo scroll; dentro dele, aparece o
-  fundo preto de verdade da hero (.hero__pin) com o conteudo real por
-  cima -- por isso "parece a logo" em repouso, sem precisar de nenhum
-  conteudo especifico ali.
-*/
-.hero__real {
-  position: absolute;
-  left: var(--container-pad);
-  top: 50%;
-  transform: translateY(-50%);
-  width: min(600px, calc(100vw - 2 * var(--container-pad)));
-  z-index: 1;
-}
-
-.hero__real .eyebrow {
+.hero .eyebrow {
   white-space: nowrap;
 }
 
-.hero__real h1 {
+.hero h1 {
   font-family: var(--font-display);
   font-weight: 900;
   font-size: clamp(40px, 5.2vw, 68px);
   line-height: .98;
   letter-spacing: -.02em;
   margin-top: 18px;
+  max-width: 780px;
 }
 
 .hero__desc {
@@ -696,7 +609,7 @@ body.intro-active {
   line-height: 1.5;
   color: var(--text-68);
   margin-top: 20px;
-  max-width: 92%;
+  max-width: 560px;
 }
 
 .hero__ctas {
@@ -705,8 +618,8 @@ body.intro-active {
   margin-top: 32px;
 }
 
-/* logo de marca d'agua no canto superior direito do bloco de texto --
-   fica atras do texto real, opacidade bem baixa (so' uma textura). */
+/* logo de marca d'agua no canto superior direito, atras do texto real,
+   opacidade bem baixa (so' uma textura). */
 .hero__watermark {
   position: absolute;
   top: -70px;
@@ -719,112 +632,17 @@ body.intro-active {
   pointer-events: none;
 }
 
-/*
-  fica exatamente do tamanho da viewport (inset:0, sem transform nenhum)
-  -- o Chromium tem um bug de renderizacao real com clip-path quando o
-  elemento e' escalado (via CSS transform) pra tamanhos muito grandes
-  (testado: uma caixa de 3000px escalada 9x = 27000px corta o clip-path
-  errado, revelando so' parte do buraco). Pra evitar isso, o buraco NAO
-  e' mais feito escalando uma caixa gigante: js/script.js recalcula a
-  STRING do clip-path a cada frame do scroll, com as coordenadas do
-  buraco (e so' elas) crescendo -- o retangulo externo fica sempre do
-  tamanho exato da tela, nunca precisa ser gigante.
-*/
-.hero__mask-overlay {
-  position: absolute;
-  inset: 0;
-  background: var(--fg);
-  z-index: 2;
-  pointer-events: none;
-}
-
-/* desenho solido da logo, sincronizado com o buraco (js/script.js) --
-   existe so' pra poder aplicar o filtro de agua no hover (um clip-path
-   nao pode ser destorcido por filter, mas um preenchimento normal
-   pode). fica por cima do overlay (z-index maior). fill=var(--bg) (nao
-   #000 fixo) pra sumir sem deixar costura quando o clipOff acontece e
-   revela o fundo de verdade da hero (.hero__pin, tambem var(--bg)) --
-   os dois precisam bater exatamente, em qualquer tema. */
-.hero__logo-visual {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 3;
-  pointer-events: none;
-  overflow: visible;
-}
-
-#heroLogoGroup,
-#heroLogoGroupRipple {
-  fill: var(--bg);
-}
-
-/* copia sempre-destorcida da logo -- so' aparece onde a mask-image
-   (radial-gradient, opaco no centro/transparente na borda) esta'
-   opaca. --ripple-x/--ripple-y sao' as coordenadas do cursor (js/
-   script.js atualiza com suavizacao via GSAP em mousemove); comecam
-   bem fora da tela (-9999px) pra nao aparecer nada antes do primeiro
-   movimento do mouse. */
-.hero__logo-ripple {
-  --ripple-x: -9999px;
-  --ripple-y: -9999px;
-}
-
-#heroLogoGroupRipple {
-  filter: url(#waterRippleHero);
-}
-
-.hero__logo-ripple {
-  mask-image: radial-gradient(circle 180px at var(--ripple-x) var(--ripple-y), #fff 0%, #fff 55%, transparent 100%);
-  -webkit-mask-image: radial-gradient(circle 180px at var(--ripple-x) var(--ripple-y), #fff 0%, #fff 55%, transparent 100%);
-}
-
 @media (max-width: 760px) {
-  .hero__logo-visual {
-    display: none;
+  .hero {
+    padding-top: 140px;
+    padding-bottom: 80px;
   }
-}
 
-/* dica de scroll -- pequena e sutil, so' em repouso (opacidade
-   controlada via JS, sumindo rapido assim que o scroll comeca). */
-.hero__scroll-hint {
-  position: absolute;
-  left: 50%;
-  bottom: 36px;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  color: var(--bg);
-  font-family: var(--font-body);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: .15em;
-  text-transform: uppercase;
-  z-index: 5;
-  pointer-events: none;
-}
-
-.hero__scroll-hint svg {
-  animation: scrollHintBounce 1.8s ease-in-out infinite;
-}
-
-@keyframes scrollHintBounce {
-  0%, 100% { transform: translateY(0); opacity: .45; }
-  50% { transform: translateY(5px); opacity: .9; }
-}
-
-/* o zoom/mascara da hero roda em qualquer tamanho de tela (js/script.js
-   usa window.innerWidth/innerHeight, ja' responsivo) -- no mobile so'
-   ajustamos tipografia/espacamento pra caber melhor numa tela estreita. */
-@media (max-width: 760px) {
-  .hero__real .eyebrow {
+  .hero .eyebrow {
     white-space: normal;
   }
 
-  .hero__real h1 {
+  .hero h1 {
     font-size: clamp(34px, 9vw, 44px);
   }
 

@@ -1,10 +1,10 @@
 // ---------- ANIMACOES EXTRAS LIGADAS AO SCROLL (GSAP + ScrollTrigger) ----------
-// tudo aqui e' decorativo/complementar ao que ja existe em script.js
-// (zoom da hero), trail.js (cobra) e main.js (menu do portfolio, modal,
-// reveal basico) -- cortina de transicao entre secoes, titulos que
-// revelam palavra por palavra, numeros que embaralham, parallax, tilt
-// 3D nos cards, botoes magneticos, marquee reativo ao scroll e uma
-// linha de progresso na secao de processo.
+// tudo aqui e' decorativo/complementar ao que ja existe em trail.js
+// (cobra) e main.js (menu do portfolio, modal, reveal basico) --
+// cortina de transicao entre secoes, titulos que revelam palavra por
+// palavra, numeros que embaralham, parallax, tilt 3D nos cards, botoes
+// magneticos, marquee reativo ao scroll e uma linha de progresso na
+// secao de processo.
 
 (function () {
   if (typeof gsap === 'undefined') return;

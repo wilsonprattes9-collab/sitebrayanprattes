@@ -38,10 +38,6 @@ if (themeToggle) {
 
     const themeColorMeta = document.querySelector('meta[name="theme-color"]');
     if (themeColorMeta) themeColorMeta.setAttribute('content', next === 'light' ? '#ffffff' : '#000000');
-
-    // avisa js/script.js pra redesenhar a hero na hora (cores dependem
-    // do tema), caso o usuario troque o tema parado em cima dela.
-    document.dispatchEvent(new CustomEvent('themechange'));
   });
 }
 

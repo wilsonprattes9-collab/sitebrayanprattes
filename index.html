@@ -77,11 +77,10 @@
     <rect width="100%" height="100%" filter="url(#grain-filter)"/>
   </svg>
 
-  <!-- filtros de "agua" -- feTurbulence continua se mexendo sozinho
-       (SMIL), e o deslocamento (feDisplacementMap scale) e' animado via
-       JS no hover, criando o efeito de destorcer feito agua. Com
-       scale=0 (padrao) nao distorce nada. Um filtro pra logo pequena do
-       nav, outro (raio de deslocamento maior) pra logo grande da hero. -->
+  <!-- filtro de "agua" da logo do nav -- feTurbulence continua se
+       mexendo sozinho (SMIL), e o deslocamento (feDisplacementMap
+       scale) e' animado via JS no hover, criando o efeito de destorcer
+       feito agua. Com scale=0 (padrao) nao distorce nada. -->
   <svg width="0" height="0" class="svg-defs" aria-hidden="true">
     <filter id="waterRipple" x="-40%" y="-40%" width="180%" height="180%">
       <feTurbulence type="fractalNoise" numOctaves="2" seed="7" result="noise">
@@ -89,34 +88,7 @@
       </feTurbulence>
       <feDisplacementMap id="waterDisplacement" in="SourceGraphic" in2="noise" scale="0" xChannelSelector="R" yChannelSelector="G"/>
     </filter>
-    <!-- filtro sempre "ligado" (scale fixo) -- quem controla ONDE ele
-         aparece e' uma mascara CSS radial-gradient posicionada no
-         cursor (ver .hero__logo-ripple no CSS + js/script.js), nao
-         logica dentro do proprio filtro SVG. -->
-    <filter id="waterRippleHero" x="-20%" y="-20%" width="140%" height="140%">
-      <feTurbulence type="fractalNoise" numOctaves="2" seed="3" result="noise">
-        <animate attributeName="baseFrequency" values="0.006 0.014;0.01 0.022;0.006 0.014" dur="3.2s" repeatCount="indefinite"/>
-      </feTurbulence>
-      <feDisplacementMap in="SourceGraphic" in2="noise" scale="55" xChannelSelector="R" yChannelSelector="G"/>
-    </filter>
   </svg>
-
-  <!-- intro: efeito "cobra" desenhando a logo -->
-  <div class="intro" id="intro">
-    <!-- 486px = mesmo tamanho de repouso da logo da hero (SCALE_START
-         0.95 * 512) -- tem que bater exato, senao da um salto de
-         tamanho visivel no instante em que a intro esconde. -->
-    <svg class="intro__logo" viewBox="0 0 512 512" width="486" height="486">
-      <path class="intro__stroke" d="M256,75 L75,387 L229,236 L256,165 Z"/>
-      <path class="intro__stroke" d="M256,75 L437,387 L283,236 L256,165 Z"/>
-      <path class="intro__stroke" d="M229,260 L229,340 L84,417 Z"/>
-      <path class="intro__stroke" d="M283,260 L283,340 L428,417 Z"/>
-      <path class="intro__fill" d="M256,75 L75,387 L229,236 L256,165 Z"/>
-      <path class="intro__fill" d="M256,75 L437,387 L283,236 L256,165 Z"/>
-      <path class="intro__fill" d="M229,260 L229,340 L84,417 Z"/>
-      <path class="intro__fill" d="M283,260 L283,340 L428,417 Z"/>
-    </svg>
-  </div>
 
   <!-- navbar -->
   <nav class="nav">
@@ -162,76 +134,19 @@
 
   <main>
   <!-- hero -->
-  <section class="hero" id="topo">
-    <div class="hero__pin">
-      <div class="hero__stage">
-
-        <!-- o site DE VERDADE, parado, em tamanho/posicao finais -- a
-             logo funciona como uma mascara com um buraco (formato do
-             simbolo) que cresce conforme o scroll (js/script.js so' anima
-             o `scale` do .hero__mask-overlay, via GSAP), revelando o
-             conteudo de baixo aos poucos. nada aqui cresce/aparece do
-             nada -- so' o recorte aumenta. -->
-        <div class="hero__real">
-          <svg class="hero__watermark" viewBox="0 0 512 512" aria-hidden="true">
-            <path d="M256,75 L75,387 L229,236 L256,165 Z"/>
-            <path d="M256,75 L437,387 L283,236 L256,165 Z"/>
-            <path d="M229,260 L229,340 L84,417 Z"/>
-            <path d="M283,260 L283,340 L428,417 Z"/>
-          </svg>
-          <p class="eyebrow">Criação de sites &amp; identidade visual</p>
-          <h1>Sites com inteligência, no topo do Google.</h1>
-          <p class="hero__desc">Sites animados com inteligência artificial, otimizados para SEO e blindados, em conformidade com a LGPD.</p>
-          <div class="hero__ctas">
-            <a class="btn btn--primary" href="#contato">Pedir um orçamento →</a>
-            <a class="btn btn--outline" href="#portfolio">Ver projetos</a>
-          </div>
-        </div>
-
-        <div class="hero__mask-overlay" id="heroMaskOverlay"></div>
-
-        <!-- desenho SOLIDO da logo (nao e' um clip-path/buraco -- e' um
-             preenchimento de verdade), sobreposto exatamente no mesmo
-             lugar/tamanho do buraco da mascara (sincronizado via JS).
-             precisa ser um preenchimento de verdade porque um filtro
-             SVG (o efeito de agua no hover) NAO consegue destorcer a
-             borda criada por um clip-path -- o clip acontece antes do
-             filtro rodar, entao so' um contorno "de verdade" (path
-             preenchido, sem clip) pode ser destorcido no hover. -->
-        <svg class="hero__logo-visual" id="heroLogoVisual" aria-hidden="true">
-          <g id="heroLogoGroup" fill="#000">
-            <path d=""/>
-            <path d=""/>
-            <path d=""/>
-            <path d=""/>
-          </g>
-        </svg>
-
-        <!-- segunda copia EXATA da logo, sempre com o filtro de agua
-             ativo (sem liga/desliga) -- quem controla ONDE ela aparece
-             e' a mask-image (CSS, radial-gradient) em .hero__logo-ripple,
-             posicionada no cursor via --ripple-x/--ripple-y (js/script.js).
-             onde a mascara e' transparente (longe do mouse), essa copia
-             fica invisivel e so' a copia nitida (acima) aparece. -->
-        <svg class="hero__logo-visual hero__logo-ripple" id="heroLogoRippleVisual" aria-hidden="true">
-          <g id="heroLogoGroupRipple" fill="#000">
-            <path d=""/>
-            <path d=""/>
-            <path d=""/>
-            <path d=""/>
-          </g>
-        </svg>
-
-        <!-- dica pequena/sutil de scroll -- so' visivel em repouso,
-             some rapido assim que o usuario comeca a rolar (js/script.js). -->
-        <div class="hero__scroll-hint" id="scrollHint" aria-hidden="true">
-          <span>role para baixo</span>
-          <svg viewBox="0 0 24 24" width="12" height="12">
-            <path d="M12 4v14m0 0l-6-6m6 6l6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-
-      </div>
+  <section class="hero container" id="topo">
+    <svg class="hero__watermark" viewBox="0 0 512 512" aria-hidden="true">
+      <path d="M256,75 L75,387 L229,236 L256,165 Z"/>
+      <path d="M256,75 L437,387 L283,236 L256,165 Z"/>
+      <path d="M229,260 L229,340 L84,417 Z"/>
+      <path d="M283,260 L283,340 L428,417 Z"/>
+    </svg>
+    <p class="eyebrow">Criação de sites &amp; identidade visual</p>
+    <h1>Sites com inteligência, no topo do Google.</h1>
+    <p class="hero__desc">Sites animados com inteligência artificial, otimizados para SEO e blindados, em conformidade com a LGPD.</p>
+    <div class="hero__ctas">
+      <a class="btn btn--primary" href="#contato">Pedir um orçamento →</a>
+      <a class="btn btn--outline" href="#portfolio">Ver projetos</a>
     </div>
   </section>
 
@@ -497,8 +412,6 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" integrity="sha384-g4NTh/Iv5PPU4xPyhEWqPcwtNXOvdaDI8LLnyYfyNZOjKJeYQyjzQ9X5275eBjpt" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" integrity="sha384-Z3REaz79l2IaAZqJsSABtTbhjgOUYyV3p90XNnAPCSHg3EMTz1fouunq9WZRtj3d" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="js/intro.js"></script>
-  <script src="js/script.js"></script>
   <script src="js/trail.js"></script>
   <script src="js/portfolio-live-data.js"></script>
   <script src="js/main.js"></script>
