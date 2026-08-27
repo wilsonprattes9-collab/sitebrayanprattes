@@ -805,6 +805,84 @@ section[id] {
   }
 }
 
+/* ---------- STACK / FERRAMENTAS ---------- */
+
+.stack {
+  padding-top: 90px;
+  padding-bottom: 90px;
+  border-top: 1px solid var(--border-1);
+}
+
+.stack__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+}
+
+/* os logos ficam SEMPRE na cor oficial da marca (fill fixo no SVG,
+   nao amarrado a var(--fg)) -- e' o unico ponto do site com cor de
+   verdade, de proposito, pra dar vida sem fugir do resto preto e
+   branco. o card em volta e' que troca com o tema. */
+.stack__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 34px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius-card);
+  transition: border-color .2s ease;
+  will-change: transform;
+}
+
+.stack__item:hover {
+  border-color: var(--border-hover);
+}
+
+.stack__icon {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stack__icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.stack__item span {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 13.5px;
+  color: var(--text-72);
+  text-align: center;
+}
+
+@media (max-width: 760px) {
+  .stack__grid {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+  }
+
+  .stack__item {
+    padding: 22px 14px;
+    gap: 12px;
+  }
+
+  .stack__icon {
+    width: 34px;
+    height: 34px;
+  }
+
+  .stack__item span {
+    font-size: 12px;
+  }
+}
+
 /* ---------- PROCESSO ---------- */
 
 .process {
