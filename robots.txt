@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://apice.vercel.app/sitemap.xml
+Sitemap: https://apice-oficial.vercel.app/sitemap.xml
