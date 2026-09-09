@@ -97,6 +97,19 @@ function setupScrollTrail() {
 
 window.addEventListener('DOMContentLoaded', setupScrollTrail);
 
+// DOMContentLoaded dispara antes das fontes (Archivo/Space Grotesk, Google
+// Fonts) e das imagens terminarem de carregar -- se o texto trocar da fonte
+// de fallback pra fonte de verdade DEPOIS desse primeiro calculo, a altura
+// da .trail-zone muda mas o SVG (viewBox/width/height, calculados uma unica
+// vez) fica com o tamanho antigo, dessincronizando o rastro do conteudo de
+// verdade (ele para de "bater" com o scroll, ou some antes do fim). Por
+// isso recalcula de novo quando as fontes terminam e no 'load' (que so'
+// dispara depois de imagens etc. tambem carregarem).
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(setupScrollTrail);
+}
+window.addEventListener('load', setupScrollTrail);
+
 let trailResizeTimer;
 window.addEventListener('resize', () => {
   clearTimeout(trailResizeTimer);
