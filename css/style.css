@@ -1425,6 +1425,15 @@ section[id] {
 /* ---------- MERCADO / DADOS ---------- */
 
 .market {
+  /* precisa de position:relative pra' ser o "container de posicionamento"
+     do seu proprio .section-curtain (position:absolute; inset:0;) --
+     .services/.process/.portfolio/.about ganham isso de graca via
+     ".trail-zone > section" (elas moram dentro da trail-zone, que e'
+     position:relative), mas .market fica FORA da trail-zone, entao
+     precisa da propria regra. Sem isso, o curtain nao acha nenhum
+     ancestral posicionado e escapa pro topo do DOCUMENTO (0,0), do
+     tamanho da viewport -- cobrindo a Hero inteira com preto solido. */
+  position: relative;
   padding-top: 90px;
   padding-bottom: 90px;
   border-top: 1px solid var(--border-1);
