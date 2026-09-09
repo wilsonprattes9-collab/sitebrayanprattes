@@ -74,7 +74,7 @@
     });
   }
 
-  document.querySelectorAll('.card__number, .process__step-number, .portfolio__menu-number').forEach((el) => {
+  document.querySelectorAll('.card__number, .process__step-number, .portfolio__menu-number, .market__stat-number').forEach((el) => {
     ScrollTrigger.create({
       trigger: el,
       start: 'top 90%',
@@ -83,9 +83,42 @@
     });
   });
 
+  // ---------- GRAFICO DE MERCADO: barras crescem ao entrar na tela + ----------
+  // ---------- detalhe de cada linha no hover/foco/toque ----------
+  // (a largura de repouso das barras -- pra quem tem prefers-reduced-motion,
+  // que sai antes de chegar aqui -- ja' vem garantida via CSS puro, ver
+  // @media (prefers-reduced-motion: reduce) em .market__chart-fill.)
+
+  const aiChart = document.querySelector('#aiChart');
+  const chartDetail = document.querySelector('#chartDetail');
+
+  if (aiChart && chartDetail) {
+    const defaultDetail = chartDetail.textContent;
+
+    aiChart.querySelectorAll('.market__chart-row').forEach((row) => {
+      const showDetail = () => {
+        chartDetail.textContent = row.dataset.detail;
+      };
+      row.addEventListener('mouseenter', showDetail);
+      row.addEventListener('focus', showDetail);
+      row.addEventListener('click', showDetail);
+    });
+
+    aiChart.addEventListener('mouseleave', () => {
+      chartDetail.textContent = defaultDetail;
+    });
+
+    ScrollTrigger.create({
+      trigger: aiChart,
+      start: 'top 85%',
+      once: true,
+      onEnter: () => aiChart.classList.add('is-visible'),
+    });
+  }
+
   // ---------- TITULOS: revelam palavra por palavra ao entrar na tela ----------
 
-  document.querySelectorAll('.section-head h2, .about__content h2, .contact__info h2').forEach((heading) => {
+  document.querySelectorAll('.section-head h2, .about__content h2, .contact__info h2, .market__subhead').forEach((heading) => {
     const words = heading.textContent.trim().split(/\s+/);
     heading.innerHTML = words
       .map((word) => `<span class="word-mask"><span class="word-inner">${word}</span></span>`)
